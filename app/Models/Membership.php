@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\TeamRole;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $team_id
  * @property int $user_id
  * @property TeamRole $role
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read Team $team
  * @property-read User $user
  */
@@ -42,7 +42,7 @@ final class Membership extends Pivot
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'role' => TeamRole::class,

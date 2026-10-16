@@ -89,7 +89,7 @@ final class Document extends Model
     /**
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'status' => DocumentStatus::class,

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Teams;
 
 use App\Actions\Teams\CreateTeam;
 use App\Enums\TeamRole;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
 use App\Models\Membership;
@@ -20,7 +19,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-final class TeamController extends Controller
+final class TeamController
 {
     /**
      * Display a listing of the user's teams.
@@ -106,44 +105,6 @@ final class TeamController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team updated.')]);
 
         return to_route('teams.edit', ['team' => $team->slug]);
-    }
-
-    /**
-     * Switch the user's current team.
-     */
-    public function switch(Request $request, Team $team): RedirectResponse
-    {
-        abort_unless($request->user()->belongsToTeam($team), 403);
-
-        $request->user()->switchTeam($team);
-
-        return back();
-    }
-
-    /**
-     * Leave the specified team.
-     */
-    public function leave(Request $request, Team $team): RedirectResponse
-    {
-        Gate::authorize('leave', $team);
-
-        $user = $request->user();
-
-        $fallbackTeam = $user->isCurrentTeam($team)
-            ? $user->fallbackTeam($team)
-            : null;
-
-        $team->memberships()
-            ->where('user_id', $user->id)
-            ->delete();
-
-        if ($fallbackTeam) {
-            $user->switchTeam($fallbackTeam);
-        }
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('You left the team ":name"', ['name' => $team->name])]);
-
-        return to_route('teams.index');
     }
 
     /**

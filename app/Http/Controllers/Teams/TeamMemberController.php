@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Teams;
 
 use App\Enums\TeamRole;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Team;
 use App\Models\User;
@@ -13,7 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
-final class TeamMemberController extends Controller
+final class TeamMemberController
 {
     /**
      * Update the specified team member's role.

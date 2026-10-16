@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Teams\TeamInvitationController;
+use App\Http\Controllers\Teams\AcceptTeamInvitationController;
+use App\Http\Controllers\Teams\DeclineTeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
@@ -16,8 +17,8 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
-    Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
+    Route::post('invitations/{invitation}/accept', AcceptTeamInvitationController::class)->name('invitations.accept');
+    Route::delete('invitations/{invitation}', DeclineTeamInvitationController::class)->name('invitations.decline');
 });
 
 require __DIR__.'/settings.php';
