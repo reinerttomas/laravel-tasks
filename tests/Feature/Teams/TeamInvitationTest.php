@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\TeamInvitation;
@@ -65,7 +67,7 @@ test('invitation email for unknown users uses login route', function () {
     $mail = (new TeamInvitationNotification($invitation))->toMail((object) []);
 
     expect($mail->actionUrl)->toBe(route('login', ['invitation' => $invitation->code]));
-    $this->assertStringContainsString('log in', strtolower(implode(' ', $mail->introLines)));
+    $this->assertStringContainsString('log in', mb_strtolower(implode(' ', $mail->introLines)));
 });
 
 test('team invitations can be created by admins', function () {

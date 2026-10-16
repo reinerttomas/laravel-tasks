@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\TeamRole;
@@ -26,23 +28,23 @@ use Illuminate\Support\Str;
  * @property-read User $inviter
  */
 #[Fillable(['team_id', 'email', 'role', 'invited_by', 'expires_at', 'accepted_at'])]
-class TeamInvitation extends Model
+final class TeamInvitation extends Model
 {
     /** @use HasFactory<TeamInvitationFactory> */
     use HasFactory;
 
     /**
-     * Bootstrap the model and its traits.
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected static function boot(): void
+    protected function casts(): array
     {
-        parent::boot();
-
-        static::creating(function (TeamInvitation $invitation) {
-            if (empty($invitation->code)) {
-                $invitation->code = Str::random(64);
-            }
-        });
+        return [
+            'role' => TeamRole::class,
+            'expires_at' => 'datetime',
+            'accepted_at' => 'datetime',
+        ];
     }
 
     /**
@@ -90,24 +92,24 @@ class TeamInvitation extends Model
     }
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'role' => TeamRole::class,
-            'expires_at' => 'datetime',
-            'accepted_at' => 'datetime',
-        ];
-    }
-
-    /**
      * Get the route key for the model.
      */
     public function getRouteKeyName(): string
     {
         return 'code';
+    }
+
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::creating(function (TeamInvitation $invitation) {
+            if (empty($invitation->code)) {
+                $invitation->code = Str::random(64);
+            }
+        });
     }
 }
