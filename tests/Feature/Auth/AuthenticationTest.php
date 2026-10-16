@@ -120,3 +120,26 @@ test('users are rate limited', function () {
 
     $response->assertTooManyRequests();
 });
+
+test('json login requests receive a json response', function () {
+    $user = User::factory()->create();
+
+    $response = $this->postJson(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertOk();
+    $response->assertExactJson(['two_factor' => false]);
+});
+
+test('passkey logins are rate limited', function () {
+    RateLimiter::increment(md5('passkeys'.implode('|', ['credential-id', '127.0.0.1'])), amount: 10);
+
+    $response = $this->postJson(route('passkey.login'), [
+        'credential' => ['id' => 'credential-id'],
+    ]);
+
+    $response->assertTooManyRequests();
+});

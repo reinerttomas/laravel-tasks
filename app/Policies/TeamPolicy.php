@@ -11,30 +11,6 @@ use App\Models\User;
 final class TeamPolicy
 {
     /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Team $team): bool
-    {
-        return $user->belongsToTeam($team);
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return true;
-    }
-
-    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Team $team): bool
@@ -50,14 +26,6 @@ final class TeamPolicy
         return ! $team->is_personal
             && $user->belongsToTeam($team)
             && ! $user->ownsTeam($team);
-    }
-
-    /**
-     * Determine whether the user can add a member to the team.
-     */
-    public function addMember(User $user, Team $team): bool
-    {
-        return $user->hasTeamPermission($team, TeamPermission::AddMember);
     }
 
     /**

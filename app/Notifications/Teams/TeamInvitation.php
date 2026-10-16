@@ -52,19 +52,4 @@ final class TeamInvitation extends Notification implements ShouldQueue
                 route('login', ['invitation' => $this->invitation->code]),
             );
     }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'invitation_id' => $this->invitation->id,
-            'team_id' => $this->invitation->team_id,
-            'team_name' => $this->invitation->team->name,
-            'role' => $this->invitation->role->value,
-        ];
-    }
 }

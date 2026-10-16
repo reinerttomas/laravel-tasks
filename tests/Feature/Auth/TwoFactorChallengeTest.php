@@ -35,3 +35,36 @@ test('two factor challenge can be rendered', function () {
             ->component('auth/two-factor-challenge'),
         );
 });
+
+test('users can pass the two factor challenge with a recovery code', function () {
+    $user = User::factory()->withTwoFactor()->create();
+
+    $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response = $this->post(route('two-factor.login.store'), [
+        'recovery_code' => 'recovery-code-1',
+    ]);
+
+    $this->assertAuthenticatedAs($user);
+    $response->assertRedirect(route('dashboard'));
+});
+
+test('json two factor challenge requests receive a json response', function () {
+    $user = User::factory()->withTwoFactor()->create();
+
+    $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response = $this->postJson(route('two-factor.login.store'), [
+        'recovery_code' => 'recovery-code-1',
+    ]);
+
+    $this->assertAuthenticatedAs($user);
+    $response->assertOk();
+    $response->assertExactJson(['two_factor' => false]);
+});

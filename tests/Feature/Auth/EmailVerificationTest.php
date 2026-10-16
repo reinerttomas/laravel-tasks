@@ -42,6 +42,21 @@ test('email can be verified', function () {
     $response->assertRedirect("/{$team->slug}/dashboard?verified=1");
 });
 
+test('json email verification requests receive no content', function () {
+    $user = User::factory()->unverified()->create();
+
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        ['id' => $user->id, 'hash' => sha1($user->email)],
+    );
+
+    $response = $this->actingAs($user)->getJson($verificationUrl);
+
+    $response->assertNoContent();
+    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+});
+
 test('email is not verified with invalid hash', function () {
     $user = User::factory()->unverified()->create();
 

@@ -53,6 +53,37 @@ test('team slug uses next available suffix', function () {
     ]);
 });
 
+test('team slug ignores existing slugs without a numeric suffix', function () {
+    $user = User::factory()->create();
+
+    Team::factory()->create(['name' => 'Acme', 'slug' => 'acme']);
+    Team::factory()->create(['name' => 'Acme Corp', 'slug' => 'acme-corp']);
+
+    $this
+        ->actingAs($user)
+        ->post(route('teams.store'), [
+            'name' => 'Acme',
+        ]);
+
+    $this->assertDatabaseHas('teams', [
+        'name' => 'Acme',
+        'slug' => 'acme-1',
+    ]);
+});
+
+test('teams cannot be created with a reserved name', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->post(route('teams.store'), [
+            'name' => 'Settings',
+        ]);
+
+    $response->assertSessionHasErrors(['name' => 'This team name is reserved and cannot be used.']);
+    $this->assertDatabaseMissing('teams', ['name' => 'Settings']);
+});
+
 test('the team edit page can be rendered', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

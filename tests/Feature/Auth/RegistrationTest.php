@@ -35,6 +35,16 @@ test('registration screen includes team invitation context', function () {
     );
 });
 
+test('registration screen ignores unknown invitation codes', function () {
+    $response = $this->get(route('register', ['invitation' => 'unknown-code']));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('auth/register')
+        ->where('teamInvitation', null),
+    );
+});
+
 test('new users can register', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
@@ -47,4 +57,17 @@ test('new users can register', function () {
 
     $user = User::where('email', 'test@example.com')->first();
     $response->assertRedirect(route('dashboard'));
+});
+
+test('json registration requests receive a json response', function () {
+    $response = $this->postJson(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertCreated();
+    $response->assertExactJson(['two_factor' => false]);
 });
