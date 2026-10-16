@@ -8,6 +8,7 @@ use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 use Laravel\Passkeys\Contracts\PasskeyLoginResponse;
@@ -60,9 +61,9 @@ test('passkey login response redirects to the current team dashboard', function 
     $request->setLaravelSession($this->app['session.store']);
     $request->setUserResolver(fn () => $user);
 
-    $jsonResponse = app(PasskeyLoginResponse::class)->toResponse($request);
+    $response = TestResponse::fromBaseResponse(app(PasskeyLoginResponse::class)->toResponse($request));
 
-    expect($jsonResponse->getData()->redirect)->toBe(route('dashboard', ['current_team' => $user->personalTeam()->slug]));
+    $response->assertJson(['redirect' => route('dashboard', ['current_team' => $user->personalTeam()->slug])]);
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {
