@@ -23,3 +23,5 @@ pest()->extend(TestCase::class)
         Process::preventStrayProcesses();
     })
     ->in('Browser', 'Feature');
+
+pest()->tia()->locally();
