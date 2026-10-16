@@ -38,27 +38,13 @@ final class TeamInvitation extends Model
      *
      * @return array<string, string>
      */
-    public function casts(): array
+    protected function casts(): array
     {
         return [
             'role' => TeamRole::class,
             'expires_at' => 'datetime',
             'accepted_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Bootstrap the model and its traits.
-     */
-    public static function boot(): void
-    {
-        parent::boot();
-
-        self::creating(function (TeamInvitation $invitation) {
-            if (empty($invitation->code)) {
-                $invitation->code = Str::random(64);
-            }
-        });
     }
 
     /**
@@ -103,5 +89,19 @@ final class TeamInvitation extends Model
     public function getRouteKeyName(): string
     {
         return 'code';
+    }
+
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::creating(function (TeamInvitation $invitation) {
+            if (empty($invitation->code)) {
+                $invitation->code = Str::random(64);
+            }
+        });
     }
 }
