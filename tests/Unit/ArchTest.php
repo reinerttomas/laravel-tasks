@@ -23,6 +23,11 @@ arch('controllers are only reached through routes')
     ->expect('App\Http\Controllers')
     ->not->toBeUsed();
 
+arch('actions are final readonly classes')
+    ->expect('App\Actions')
+    ->toBeFinal()
+    ->toBeReadonly();
+
 arch('actions do not carry an action suffix')
     ->expect('App\Actions')
     ->not->toHaveSuffix('Action');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Teams;
 
-use App\Actions\Teams\CreateTeam;
+use App\Actions\CreateTeam;
 use App\Enums\TeamRole;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
