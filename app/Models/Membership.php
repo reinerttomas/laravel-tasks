@@ -6,36 +6,31 @@ namespace App\Models;
 
 use App\Enums\TeamRole;
 use Carbon\CarbonImmutable;
+use Database\Factories\MembershipFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * @property int $id
- * @property int $team_id
- * @property int $user_id
- * @property TeamRole $role
- * @property CarbonImmutable|null $created_at
- * @property CarbonImmutable|null $updated_at
+ * @property-read int $id
+ * @property-read int $team_id
+ * @property-read int $user_id
+ * @property-read TeamRole $role
+ * @property-read CarbonImmutable|null $created_at
+ * @property-read CarbonImmutable|null $updated_at
  * @property-read Team $team
  * @property-read User $user
  */
 #[Fillable(['team_id', 'user_id', 'role'])]
+#[Table('team_members', incrementing: true)]
+#[UseFactory(MembershipFactory::class)]
 final class Membership extends Pivot
 {
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'team_members';
+    /** @use HasFactory<MembershipFactory> */
+    use HasFactory;
 
     /**
      * Get the attributes that should be cast.

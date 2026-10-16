@@ -20,3 +20,10 @@ test('a membership belongs to its team and user', function () {
     expect($membership->team->is($team))->toBeTrue()
         ->and($membership->user->is($user))->toBeTrue();
 });
+
+test('the membership factory makes a member of a new team', function () {
+    $membership = Membership::factory()->create();
+
+    expect($membership->role)->toBe(TeamRole::Member)
+        ->and($membership->team->members()->whereKey($membership->user_id)->exists())->toBeTrue();
+});
