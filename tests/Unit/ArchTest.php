@@ -8,9 +8,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
 arch()->preset()->php();
-arch()->preset()->strict();
+// Eloquent scopes and accessors must stay protected, which strict() forbids.
+arch()->preset()->strict()->ignoring('App\Models');
 arch()->preset()->laravel();
 arch()->preset()->security();
+
+arch('models keep the strict rules that apply to them')
+    ->expect('App\Models')
+    ->toBeFinal()
+    ->toUseStrictTypes()
+    ->toUseStrictEquality();
 
 arch('controllers are only reached through routes')
     ->expect('App\Http\Controllers')
