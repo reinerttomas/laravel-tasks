@@ -52,6 +52,10 @@ _Avoid_: Board, space, repository
 A short uppercase code, unique within the team, that prefixes the references of the project's tasks (the `WEB` in `WEB-42`).
 _Avoid_: Key, prefix, code
 
+**Project color**:
+The colour, picked from a fixed palette, that marks a project wherever it appears.
+_Avoid_: Theme, label colour
+
 **Archived project**:
 A project set aside: hidden from the default project list and read-only, but restorable.
 _Avoid_: Closed project, inactive project

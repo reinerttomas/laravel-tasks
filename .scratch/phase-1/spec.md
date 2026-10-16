@@ -34,7 +34,8 @@ Roles are the `TeamRole` enum, extended with **Viewer**; permissions are the `Te
 
 ## Projects
 
-- Fields: `name`, `identifier` (2–5 uppercase letters, unique within the team, editable), `description` (nullable), `archived_at` (nullable), `next_task_number`.
+- Fields: `name`, `identifier` (2–5 uppercase letters, unique within the team, editable), `color` (one of a fixed palette: slate, red, orange, amber, green, teal, sky, blue, violet, pink; `ProjectColor` enum stored as a string), `description` (nullable), `archived_at` (nullable), `next_task_number`.
+- A new project defaults to the first palette colour not used by an active project in the team; the member can pick another.
 - Archive hides the project from the default list and makes it read-only; restore reverses it.
 - Delete is Owner-only: `DeleteProject` removes the project's comments, tasks and the project in one transaction. No `cascadeOnDelete`, no soft deletes.
 - Routes use the project's UUID: `/{current_team}/projects/{project}`. A project from another team must 404.
@@ -67,10 +68,12 @@ Task descriptions and comments are written in a plain `<textarea>` and rendered 
 
 Build every screen from shadcn/ui components (`resources/js/components/ui`, style `new-york`) wherever one fits; add missing ones with the shadcn CLI rather than hand-rolling markup. Screen layouts were chosen from prototypes on the `prototype/screens` branch.
 
+Sidebar navigation: Dashboard, My tasks, Projects, then a "Projects" group listing the current team's active projects (colour swatch + identifier + name), each linking to its task list. The list comes from Inertia shared props.
+
 1. **Projects**: active projects, with archived projects behind a filter; create and edit in a dialog.
 2. **Project tasks**: a table filterable by status, priority and assignee, searchable by title or task reference, sortable, paginated server-side.
 3. **Task detail**: a page with inline editing of task fields and the comment thread.
-4. **My tasks**: tasks assigned to me across all projects of the current team.
+4. **My tasks**: tasks assigned to me across all projects of the current team; the project task table with a Project column and filter instead of Assignee, open statuses by default.
 5. **Dashboard**: task counts by status and my in-progress tasks.
 
 ## Demo data
