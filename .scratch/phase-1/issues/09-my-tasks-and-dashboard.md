@@ -27,4 +27,4 @@ Two prototype rounds on the `prototype/screens` branch (`resources/js/components
 ## Acceptance criteria
 
 - [ ] Feature tests: only my tasks from the current team appear; counts are scoped to the current team and exclude archived projects; a task due yesterday appears only under Overdue.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

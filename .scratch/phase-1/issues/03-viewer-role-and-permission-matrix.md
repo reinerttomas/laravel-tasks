@@ -16,4 +16,4 @@ Extend roles and permissions to the full matrix in `spec.md` (ADR 0002).
 
 - [ ] A user can be invited as, and changed to, Viewer.
 - [ ] A unit test asserts each role's permission set against the matrix.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

@@ -18,4 +18,4 @@ Switch every model to UUIDv7 primary keys (ADR 0003).
 
 - [ ] Every table's primary key is `uuid`; new records get UUIDv7 IDs.
 - [ ] All existing tests pass.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

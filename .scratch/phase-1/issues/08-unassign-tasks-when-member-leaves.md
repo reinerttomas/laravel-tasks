@@ -13,4 +13,4 @@ When a member leaves a team or is removed from it, their tasks in that team beco
 ## Acceptance criteria
 
 - [ ] Feature tests: leaving and being removed both unassign tasks in that team only; tasks in the user's other teams keep their assignee.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

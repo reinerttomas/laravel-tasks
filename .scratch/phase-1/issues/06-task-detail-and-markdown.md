@@ -28,4 +28,4 @@ Two prototype rounds on the `prototype/screens` branch (`resources/js/components
 ## Acceptance criteria
 
 - [ ] Feature tests: page renders for every role; cross-team access returns 404.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

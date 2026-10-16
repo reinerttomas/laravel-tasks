@@ -15,4 +15,4 @@ Bring the starter kit's application code in line with `.ai/rules` before new fea
 ## Acceptance criteria
 
 - [ ] All existing tests pass unchanged (except for namespace imports).
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

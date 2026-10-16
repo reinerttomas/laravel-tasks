@@ -6,9 +6,9 @@
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
         "dev": "vp dev",
-        "check": "vp check",
-        "check:fix": "vp check --fix",
-        "types:check": "tsc --noEmit"
+        "lint": "vp check --fix",
+        "test:lint": "vp check",
+        "test:types": "tsc --noEmit"
     },
     "dependencies": {
         "@inertiajs/react": "^3.0.0",

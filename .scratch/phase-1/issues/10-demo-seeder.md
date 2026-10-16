@@ -14,4 +14,4 @@ Seed realistic data for trying out roles by hand and, in phase 2, for AI queries
 ## Acceptance criteria
 
 - [ ] `php artisan migrate:fresh --seed` succeeds and each demo user can log in.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

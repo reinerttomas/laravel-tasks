@@ -33,4 +33,4 @@ Prototype variant **B, data table** won over a Linear-style grouped list (A) and
 ## Acceptance criteria
 
 - [ ] Feature tests: numbering is sequential per project and not reused after deletion; Member can delete only own tasks; Viewer cannot create or update; archived project rejects writes; assignee from another team is rejected; cross-team access returns 404; filters and search return the right tasks.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

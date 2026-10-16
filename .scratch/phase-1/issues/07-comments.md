@@ -16,4 +16,4 @@ Members discuss a task in a comment thread on the task detail page.
 ## Acceptance criteria
 
 - [ ] Feature tests cover the matrix for comments (including Admin cannot edit someone else's comment but can delete it), archived project rejecting writes, and deleting a task or project removing its comments.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.

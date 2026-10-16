@@ -30,4 +30,4 @@ Prototype variant **B, card grid** won over a table with tabs (A) and a list wit
 ## Acceptance criteria
 
 - [ ] Feature tests cover each action per role (allowed and forbidden), identifier validation and uniqueness per team, and cross-team access returning 404.
-- [ ] `composer ci:check` passes.
+- [ ] `composer test` passes.
