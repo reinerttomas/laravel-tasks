@@ -1,5 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, FolderKanban, LayoutGrid } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    FolderKanban,
+    LayoutGrid,
+    ListTodo,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,7 +21,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, myTasks } from '@/routes';
 import { index as projectsIndex } from '@/routes/projects';
 import type { NavItem } from '@/types';
 
@@ -33,6 +39,11 @@ export function AppSidebar() {
         },
         ...(page.props.currentTeam
             ? [
+                  {
+                      title: 'My tasks',
+                      href: myTasks(page.props.currentTeam.slug),
+                      icon: ListTodo,
+                  },
                   {
                       title: 'Projects',
                       href: projectsIndex(page.props.currentTeam.slug),

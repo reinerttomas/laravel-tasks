@@ -12,4 +12,13 @@ enum TaskStatus: string
     case Done = 'done';
     case Canceled = 'canceled';
 
+    /**
+     * Get the statuses of work not yet finished.
+     *
+     * @return list<self>
+     */
+    public static function open(): array
+    {
+        return [self::Backlog, self::Todo, self::InProgress];
+    }
 }

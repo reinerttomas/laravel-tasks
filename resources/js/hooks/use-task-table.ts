@@ -8,7 +8,11 @@ const SEARCH_DEBOUNCE_MS = 300;
  * Keeps the task table state in the query string: every change visits the page URL again,
  * preserving component state so open popovers and the search input survive the reload.
  */
-export function useTaskTable(url: string, filters: TaskFilters) {
+export function useTaskTable(
+    url: string,
+    filters: TaskFilters,
+    { hasDefaultStatuses = false }: { hasDefaultStatuses?: boolean } = {},
+) {
     const [search, setSearchInput] = useState(filters.search);
     const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -22,7 +26,11 @@ export function useTaskTable(url: string, filters: TaskFilters) {
             url,
             {
                 search: next.search || undefined,
-                status: next.status,
+                // A page with default statuses applies them when `status` is missing, so "every status" is sent as `status[]=`.
+                status:
+                    hasDefaultStatuses && next.status.length === 0
+                        ? ['']
+                        : next.status,
                 priority: next.priority,
                 assignee: next.assignee,
                 project: next.project,

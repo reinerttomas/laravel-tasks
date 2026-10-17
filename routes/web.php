@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
+use App\Http\Controllers\Tasks\MyTaskController;
 use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Teams\AcceptTeamInvitationController;
 use App\Http\Controllers\Teams\DeclineTeamInvitationController;
@@ -17,6 +18,7 @@ Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+        Route::get('my-tasks', MyTaskController::class)->name('my-tasks');
 
         Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
         Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
