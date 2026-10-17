@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import CommentThread from '@/components/comment-thread';
 import RelativeTime from '@/components/relative-time';
 import TaskActionsMenu from '@/components/task-actions-menu';
 import {
@@ -11,17 +12,19 @@ import {
     useSaveTask,
 } from '@/components/task-property-editors';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { index, show as showProject } from '@/routes/projects';
 import { show } from '@/routes/tasks';
-import type { AssignableMember, TaskDetail } from '@/types';
+import type { AssignableMember, TaskComment, TaskDetail } from '@/types';
 
 type Props = {
     task: TaskDetail;
+    comments: TaskComment[];
     members: AssignableMember[];
-    can: { update: boolean; delete: boolean };
+    can: { update: boolean; delete: boolean; createComment: boolean };
 };
 
-export default function TasksShow({ task, members, can }: Props) {
+export default function TasksShow({ task, comments, members, can }: Props) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
     const save = useSaveTask(teamSlug, task);
     const editor = { task, save, disabled: !can.update };
@@ -71,6 +74,16 @@ export default function TasksShow({ task, members, can }: Props) {
                 <div className="mt-6">
                     <DescriptionEditor {...editor} />
                 </div>
+
+                <Separator className="my-8" />
+
+                <h2 className="mb-4 font-medium">Comments</h2>
+                <CommentThread
+                    teamSlug={teamSlug}
+                    task={task}
+                    comments={comments}
+                    canComment={can.createComment}
+                />
             </div>
         </>
     );

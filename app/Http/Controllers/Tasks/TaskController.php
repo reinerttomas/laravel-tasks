@@ -7,12 +7,15 @@ namespace App\Http\Controllers\Tasks;
 use App\Actions\CreateTask;
 use App\Actions\DeleteTask;
 use App\Actions\UpdateTask;
+use App\Data\CommentItem;
 use App\Data\TaskDetail;
 use App\Http\Requests\Tasks\SaveTaskRequest;
+use App\Models\Comment;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -26,17 +29,31 @@ final class TaskController
      */
     public function show(Request $request, Team $currentTeam, Task $task): Response
     {
-        $task->load(['project', 'assignee', 'author']);
+        $user = $request->user();
+
+        $task->load([
+            'project',
+            'assignee',
+            'author',
+            // Chaperoning hands each comment its task, so the Policy checks below do not reload it per comment.
+            'comments' => fn (HasMany $query) => $query->with('author')->oldest()->chaperone(),
+        ]);
 
         return Inertia::render('tasks/show', [
             'task' => TaskDetail::fromTask($task),
+            'comments' => $task->comments->map(fn (Comment $comment): CommentItem => CommentItem::fromComment(
+                $comment,
+                canUpdate: $user?->can('update', $comment) ?? false,
+                canDelete: $user?->can('delete', $comment) ?? false,
+            )),
             'members' => $currentTeam->members()
                 ->orderBy('name')
                 ->get()
                 ->map(fn (User $member): array => ['id' => $member->id, 'name' => $member->name]),
             'can' => [
-                'update' => $request->user()?->can('update', $task) ?? false,
-                'delete' => $request->user()?->can('delete', $task) ?? false,
+                'update' => $user?->can('update', $task) ?? false,
+                'delete' => $user?->can('delete', $task) ?? false,
+                'createComment' => $user?->can('create', [Comment::class, $task]) ?? false,
             ],
         ]);
     }

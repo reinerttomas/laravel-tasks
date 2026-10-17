@@ -1,4 +1,5 @@
 export type * from './auth';
+export type * from './comments';
 export type * from './navigation';
 export type * from './projects';
 export type * from './tasks';

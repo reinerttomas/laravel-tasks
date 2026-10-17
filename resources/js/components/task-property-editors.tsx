@@ -174,7 +174,7 @@ export function PriorityPicker({ task, save, disabled }: EditorProps) {
     );
 }
 
-function MemberAvatar({
+export function MemberAvatar({
     member,
     className,
 }: {
