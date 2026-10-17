@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\TeamRole;
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
 
@@ -21,6 +22,7 @@ test('authenticated pages render without javascript errors', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $project = Project::factory()->for($team)->create();
 
     $this->actingAs($user);
 
@@ -31,6 +33,9 @@ test('authenticated pages render without javascript errors', function () {
         route('appearance.edit', absolute: false),
         route('teams.index', absolute: false),
         route('teams.edit', ['team' => $team->slug], absolute: false),
+        route('projects.index', ['current_team' => $team], absolute: false),
+        route('projects.index', ['current_team' => $team, 'filter' => 'archived'], absolute: false),
+        route('projects.show', ['current_team' => $team, 'project' => $project], absolute: false),
     ]);
 
     $pages->assertNoSmoke();
