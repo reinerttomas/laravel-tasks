@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
@@ -34,6 +35,10 @@ Route::prefix('{current_team}')
             Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
             Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
             Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+            Route::post('tasks/{task}/comments', [CommentController::class, 'store'])->name('comments.store');
+            Route::patch('tasks/{task}/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+            Route::delete('tasks/{task}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
         });
     });
 
