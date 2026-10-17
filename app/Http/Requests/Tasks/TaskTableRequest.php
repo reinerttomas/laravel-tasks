@@ -27,14 +27,18 @@ final class TaskTableRequest extends FormRequest
 
     /**
      * Get the table filters from the query string.
+     *
+     * @param  list<TaskStatus>  $defaultStatuses  used when the query string has no status at all; the table sends `status[]=` to select every status
      */
-    public function filters(): TaskFilters
+    public function filters(array $defaultStatuses = []): TaskFilters
     {
         $sort = $this->string('sort')->value();
 
         return new TaskFilters(
             search: Str::trim($this->string('search')->value()),
-            statuses: array_values(array_filter(array_map(TaskStatus::tryFrom(...), $this->strings('status')))),
+            statuses: $this->has('status')
+                ? array_values(array_filter(array_map(TaskStatus::tryFrom(...), $this->strings('status'))))
+                : $defaultStatuses,
             priorities: array_values(array_filter(array_map(TaskPriority::tryFrom(...), $this->strings('priority')))),
             assignees: $this->strings('assignee'),
             projects: $this->strings('project'),
