@@ -82,6 +82,8 @@ test('the search matches the title or the task reference', function (string $sea
     Task::factory()->for($project)->create(['title' => 'Fix the login form']);
     Task::factory()->for($project)->create(['title' => 'Write release notes']);
     Task::factory()->for($project)->create(['title' => 'Login with passkeys']);
+    Task::factory()->for($project)->create(['title' => 'Reach 100% coverage']);
+    Task::factory()->for($project)->create(['title' => 'Rename the user_id column']);
 
     $response = $this
         ->actingAs($membership->user)
@@ -96,6 +98,8 @@ test('the search matches the title or the task reference', function (string $sea
     'reference' => ['WEB-2', ['WEB-2']],
     'reference in lowercase' => ['web-1', ['WEB-1']],
     'no match' => ['deploy', []],
+    'percent sign, literally' => ['%', ['WEB-4']],
+    'underscore, literally' => ['_', ['WEB-5']],
 ]);
 
 test('tasks are sorted by the requested column', function (string $sort, array $expected) {

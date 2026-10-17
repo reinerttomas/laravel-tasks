@@ -52,8 +52,9 @@ final readonly class FilterTasks
             ? ['identifier' => Str::upper($matches[1]), 'number' => (int) $matches[2]]
             : null;
 
+        // whereLike() cannot set an ESCAPE character, so the user's % and _ would act as wildcards.
         return $query->where(fn (Builder $query) => $query
-            ->whereLike('tasks.title', '%'.$search.'%')
+            ->whereRaw("lower(tasks.title) like ? escape '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], Str::lower($search)).'%'])
             ->when($reference, fn (Builder $query, array $reference) => $query->orWhere(fn (Builder $query) => $query
                 ->where('tasks.number', $reference['number'])
                 ->whereHas('project', fn (Builder $query) => $query->where('identifier', $reference['identifier'])),
