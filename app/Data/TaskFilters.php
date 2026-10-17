@@ -13,7 +13,6 @@ final readonly class TaskFilters
     /** Assignee filter value that matches tasks without an assignee. */
     public const string Unassigned = 'unassigned';
 
-    /** Columns the task table can be sorted by. */
     public const array SORTABLE = ['number', 'title', 'status', 'priority', 'due_date', 'updated_at'];
 
     /**

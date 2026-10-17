@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final readonly class CountTaskFacets
 {
-    /** Task column behind each facet. */
     private const array COLUMNS = [
         'status' => 'tasks.status',
         'priority' => 'tasks.priority',
