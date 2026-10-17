@@ -49,6 +49,15 @@ export type TeamPermissions = {
     canRemoveMember: boolean;
     canCreateInvitation: boolean;
     canCancelInvitation: boolean;
+    canCreateProject: boolean;
+    canUpdateProject: boolean;
+    canArchiveProject: boolean;
+    canDeleteProject: boolean;
+    canCreateTask: boolean;
+    canUpdateTask: boolean;
+    canDeleteTask: boolean;
+    canCreateComment: boolean;
+    canDeleteComment: boolean;
 };
 
 export type RoleOption = {

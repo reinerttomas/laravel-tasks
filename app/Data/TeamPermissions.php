@@ -14,6 +14,15 @@ final readonly class TeamPermissions
         public bool $canRemoveMember,
         public bool $canCreateInvitation,
         public bool $canCancelInvitation,
+        public bool $canCreateProject,
+        public bool $canUpdateProject,
+        public bool $canArchiveProject,
+        public bool $canDeleteProject,
+        public bool $canCreateTask,
+        public bool $canUpdateTask,
+        public bool $canDeleteTask,
+        public bool $canCreateComment,
+        public bool $canDeleteComment,
     ) {
         //
     }
