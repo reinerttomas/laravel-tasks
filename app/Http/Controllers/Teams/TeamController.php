@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Teams;
 
 use App\Actions\CreateTeam;
+use App\Actions\DeleteTeam;
+use App\Actions\UpdateTeam;
 use App\Enums\TeamRole;
 use App\Http\Requests\Teams\DeleteTeamRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
@@ -14,7 +16,6 @@ use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -90,17 +91,11 @@ final class TeamController
     /**
      * Update the specified team.
      */
-    public function update(SaveTeamRequest $request, Team $team): RedirectResponse
+    public function update(SaveTeamRequest $request, Team $team, UpdateTeam $updateTeam): RedirectResponse
     {
         Gate::authorize('update', $team);
 
-        $team = DB::transaction(function () use ($request, $team) {
-            $team = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
-
-            $team->update(['name' => $request->validated('name')]);
-
-            return $team;
-        });
+        $team = $updateTeam->handle($team, $request->validated('name'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team updated.')]);
 
@@ -110,26 +105,9 @@ final class TeamController
     /**
      * Delete the specified team.
      */
-    public function destroy(DeleteTeamRequest $request, Team $team): RedirectResponse
+    public function destroy(DeleteTeamRequest $request, Team $team, DeleteTeam $deleteTeam): RedirectResponse
     {
-        $user = $request->user();
-        $fallbackTeam = $user->isCurrentTeam($team)
-            ? $user->fallbackTeam($team)
-            : null;
-
-        DB::transaction(function () use ($user, $team) {
-            User::where('current_team_id', $team->id)
-                ->where('id', '!=', $user->id)
-                ->each(fn (User $affectedUser) => $affectedUser->switchTeam($affectedUser->personalTeam()));
-
-            $team->invitations()->delete();
-            $team->memberships()->delete();
-            $team->delete();
-        });
-
-        if ($fallbackTeam) {
-            $user->switchTeam($fallbackTeam);
-        }
+        $deleteTeam->handle($request->user(), $team);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team deleted.')]);
 

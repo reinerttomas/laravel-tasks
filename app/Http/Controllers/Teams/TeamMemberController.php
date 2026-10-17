@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Teams;
 
+use App\Actions\RemoveTeamMember;
+use App\Actions\UpdateTeamMember;
 use App\Enums\TeamRole;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Team;
@@ -17,16 +19,11 @@ final class TeamMemberController
     /**
      * Update the specified team member's role.
      */
-    public function update(UpdateTeamMemberRequest $request, Team $team, User $user): RedirectResponse
+    public function update(UpdateTeamMemberRequest $request, Team $team, User $user, UpdateTeamMember $updateTeamMember): RedirectResponse
     {
         Gate::authorize('updateMember', $team);
 
-        $newRole = TeamRole::from($request->validated('role'));
-
-        $team->memberships()
-            ->where('user_id', $user->id)
-            ->firstOrFail()
-            ->update(['role' => $newRole]);
+        $updateTeamMember->handle($team, $user, TeamRole::from($request->validated('role')));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member role updated.')]);
 
@@ -36,19 +33,13 @@ final class TeamMemberController
     /**
      * Remove the specified team member.
      */
-    public function destroy(Team $team, User $user): RedirectResponse
+    public function destroy(Team $team, User $user, RemoveTeamMember $removeTeamMember): RedirectResponse
     {
         Gate::authorize('removeMember', $team);
 
         abort_if($team->owner()?->is($user), 403, __('The team owner cannot be removed.'));
 
-        $team->memberships()
-            ->where('user_id', $user->id)
-            ->delete();
-
-        if ($user->isCurrentTeam($team)) {
-            $user->switchTeam($user->personalTeam());
-        }
+        $removeTeamMember->handle($team, $user);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member removed.')]);
 

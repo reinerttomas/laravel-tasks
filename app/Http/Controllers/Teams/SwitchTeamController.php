@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Teams;
 
+use App\Actions\SwitchTeam;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,11 +14,9 @@ final class SwitchTeamController
     /**
      * Switch the user's current team.
      */
-    public function __invoke(Request $request, Team $team): RedirectResponse
+    public function __invoke(Request $request, Team $team, SwitchTeam $switchTeam): RedirectResponse
     {
-        abort_unless($request->user()->belongsToTeam($team), 403);
-
-        $request->user()->switchTeam($team);
+        abort_unless($switchTeam->handle($request->user(), $team), 403);
 
         return back();
     }

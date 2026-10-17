@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Actions\SwitchTeam;
 use App\Models\Team;
 use Closure;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class EnsureTeamMembership
 {
+    public function __construct(private readonly SwitchTeam $switchTeam) {}
+
     /**
      * Handle an incoming request.
      *
@@ -23,7 +26,7 @@ final class EnsureTeamMembership
         abort_if(! $user || ! $team || ! $user->belongsToTeam($team), 403);
 
         if ($request->route('current_team') && ! $user->isCurrentTeam($team)) {
-            $user->switchTeam($team);
+            $this->switchTeam->handle($user, $team);
         }
 
         return $next($request);

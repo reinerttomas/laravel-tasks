@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class CreateTeam
 {
+    public function __construct(private SwitchTeam $switchTeam) {}
+
     /**
      * Create a new team and add the user as owner.
      */
@@ -27,7 +29,7 @@ final readonly class CreateTeam
                 'role' => TeamRole::Owner,
             ]);
 
-            $user->switchTeam($team);
+            $this->switchTeam->handle($user, $team);
 
             return $team;
         });

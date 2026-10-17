@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Concerns;
 
+use App\Actions\SwitchTeam;
 use App\Data\TeamPermissions;
 use App\Data\UserTeam;
 use App\Enums\TeamPermission;
@@ -15,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\URL;
 
 trait HasTeams
 {
@@ -83,16 +83,7 @@ trait HasTeams
      */
     public function switchTeam(Team $team): bool
     {
-        if (! $this->belongsToTeam($team)) {
-            return false;
-        }
-
-        $this->update(['current_team_id' => $team->id]);
-        $this->setRelation('currentTeam', $team);
-
-        URL::defaults(['current_team' => $team->slug]);
-
-        return true;
+        return app(SwitchTeam::class)->handle($this, $team);
     }
 
     /**
