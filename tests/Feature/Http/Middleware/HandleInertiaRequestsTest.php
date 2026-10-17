@@ -7,6 +7,7 @@ use App\Enums\TeamRole;
 use App\Models\Membership;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('pages share the permissions the member holds in the current team', function () {
@@ -58,4 +59,15 @@ test('pages share the active projects of the current team for the sidebar', func
             ['id' => $web->id, 'name' => 'Web App', 'identifier' => 'WEB', 'color' => 'sky'],
         ]),
     );
+});
+
+test('pages share today in the app timezone, so overdue badges agree with the server', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-03-14 23:30:00', config('app.timezone')));
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard', ['current_team' => $user->currentTeam]));
+
+    $response->assertInertia(fn (Assert $page) => $page->where('today', '2026-03-14'));
 });

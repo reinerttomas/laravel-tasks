@@ -1,4 +1,4 @@
-import { format, isBefore, parseISO, startOfToday } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import type { LucideIcon } from 'lucide-react';
 import {
     AlertTriangle,
@@ -103,9 +103,12 @@ export function taskPriority(value: TaskPriority): Option<TaskPriority> {
     return taskPriorities.find((priority) => priority.value === value)!;
 }
 
-/** Due dates are calendar days (Y-m-d); a task is overdue from the day after. */
-export function isOverdue(dueDate: string | null): boolean {
-    return dueDate !== null && isBefore(parseISO(dueDate), startOfToday());
+/**
+ * Due dates are calendar days (Y-m-d); a task is overdue from the day after.
+ * `today` is the server's shared date in the app timezone, so the browser's clock and timezone cannot disagree with it.
+ */
+export function isOverdue(dueDate: string | null, today: string): boolean {
+    return dueDate !== null && dueDate < today;
 }
 
 export function formatDay(date: string | null): string {

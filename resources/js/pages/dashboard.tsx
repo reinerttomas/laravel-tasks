@@ -164,8 +164,9 @@ function TaskSection({
 }
 
 function TaskLine({ task }: { task: TaskRow }) {
-    const teamSlug = usePage().props.currentTeam?.slug ?? '';
-    const overdue = isOverdue(task.dueDate);
+    const { currentTeam, today } = usePage().props;
+    const teamSlug = currentTeam?.slug ?? '';
+    const overdue = isOverdue(task.dueDate, today);
 
     return (
         <li className="flex items-center gap-3 px-4 py-3 text-sm">

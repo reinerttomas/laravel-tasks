@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
 import { CalendarDays, Check, X } from 'lucide-react';
 import { useState } from 'react';
@@ -270,6 +270,7 @@ export function AssigneePicker({
 }
 
 export function DueDatePicker({ task, save, disabled }: EditorProps) {
+    const { today } = usePage().props;
     const [open, setOpen] = useState(false);
     const dueDate = task.dueDate ? parseISO(task.dueDate) : undefined;
 
@@ -287,7 +288,7 @@ export function DueDatePicker({ task, save, disabled }: EditorProps) {
                     className={cn(
                         chip,
                         !dueDate && 'text-muted-foreground',
-                        isOverdue(task.dueDate) &&
+                        isOverdue(task.dueDate, today) &&
                             'text-red-600 dark:text-red-400',
                     )}
                     data-test="task-due-date"

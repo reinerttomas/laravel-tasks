@@ -29,7 +29,8 @@ type Props = {
 };
 
 export default function TaskTable({ tasks, table, context }: Props) {
-    const teamSlug = usePage().props.currentTeam?.slug ?? '';
+    const { currentTeam, today } = usePage().props;
+    const teamSlug = currentTeam?.slug ?? '';
     const header = (
         column: TaskSortColumn,
         label: string,
@@ -127,7 +128,7 @@ export default function TaskTable({ tasks, table, context }: Props) {
                             <TableCell
                                 className={cn(
                                     'text-muted-foreground',
-                                    isOverdue(task.dueDate) &&
+                                    isOverdue(task.dueDate, today) &&
                                         'text-red-600 dark:text-red-400',
                                 )}
                             >
