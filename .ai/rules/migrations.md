@@ -7,7 +7,7 @@ paths:
 
 ## Foreign key definitions
 
-Use `$table->foreignIdFor(Model::class)->constrained()` for standard bigint foreign keys. Do not add `cascadeOnDelete()`; deleting a parent must not silently wipe its history. Only fall back to manual `$table->foreign()->references()->on()` when the referenced key is non-standard (e.g. UUID or string primary key).
+Use `$table->foreignIdFor(Model::class)->constrained()` for foreign keys; it creates a `uuid` column for `HasUuids` models (every model, ADR 0003). Pass the column name for non-conventional names: `foreignIdFor(User::class, 'author_id')`. Do not add `cascadeOnDelete()`; deleting a parent must not silently wipe its history, so delete dependent rows explicitly in the Action. Only fall back to manual `$table->foreign()->references()->on()` when the referenced column is not the model's primary key.
 
 ## One-way migrations
 

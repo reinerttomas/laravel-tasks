@@ -21,6 +21,10 @@ Declare every model `final`. Models are not extended; share behavior through tra
 
 Use attributes from `Illuminate\Database\Eloquent\Attributes` instead of properties: `#[Fillable]`, `#[Hidden]`, `#[UseFactory]`, `#[UsePolicy]`, `#[ObservedBy]`, `#[Table]`. Never use `#[Unguarded]` or an empty `#[Guarded]`.
 
+## UUID primary keys
+
+Use `HasUuids` on every model for a UUIDv7 primary key (ADR 0003), and type IDs and foreign keys as `string`.
+
 ## Factory for every model
 
 Create a factory with every model, bind it with `#[UseFactory(...)]`, and keep `use HasFactory` with a `@use HasFactory<XFactory>` generic. When a model has a policy, bind it with `#[UsePolicy(...)]`.
@@ -53,7 +57,7 @@ Type relationship methods with generics containing the related model and `$this`
 
 ```php
 /**
- * @property-read int $id
+ * @property-read string $id
  * @property-read string $title
  * @property-read string $content
  * @property-read DocumentStatus $status
@@ -67,7 +71,7 @@ Type relationship methods with generics containing the related model and `$this`
 final class Document extends Model
 {
     /** @use HasFactory<DocumentFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * @return HasMany<Chunk, $this>
