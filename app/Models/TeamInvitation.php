@@ -12,18 +12,19 @@ use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * @property-read int $id
+ * @property-read string $id
  * @property-read string $code
- * @property-read int $team_id
+ * @property-read string $team_id
  * @property-read string $email
  * @property-read TeamRole $role
- * @property-read int $invited_by
+ * @property-read string $invited_by
  * @property-read CarbonImmutable|null $expires_at
  * @property-read CarbonImmutable|null $accepted_at
  * @property-read CarbonImmutable|null $created_at
@@ -37,7 +38,7 @@ use Illuminate\Support\Str;
 final class TeamInvitation extends Model
 {
     /** @use HasFactory<TeamInvitationFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * Get the attributes that should be cast.

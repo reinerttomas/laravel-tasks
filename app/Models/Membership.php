@@ -10,14 +10,15 @@ use Database\Factories\MembershipFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * @property-read int $id
- * @property-read int $team_id
- * @property-read int $user_id
+ * @property-read string $id
+ * @property-read string $team_id
+ * @property-read string $user_id
  * @property-read TeamRole $role
  * @property-read CarbonImmutable|null $created_at
  * @property-read CarbonImmutable|null $updated_at
@@ -25,12 +26,12 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property-read User $user
  */
 #[Fillable(['team_id', 'user_id', 'role'])]
-#[Table('team_members', incrementing: true)]
+#[Table('team_members')]
 #[UseFactory(MembershipFactory::class)]
 final class Membership extends Pivot
 {
     /** @use HasFactory<MembershipFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * Get the attributes that should be cast.
