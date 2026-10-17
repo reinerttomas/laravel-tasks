@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Enums\TeamRole;
+use App\Models\Project;
+use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 
@@ -82,6 +84,29 @@ test('team members can be removed by owners', function () {
     $response->assertRedirect(route('teams.edit', $team));
 
     expect($member->fresh()->belongsToTeam($team))->toBeFalse();
+});
+
+test('removing a member unassigns their tasks in that team only', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $otherTeam->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $assignedInTeam = Task::factory()->for(Project::factory()->for($team))->for($member, 'assignee')->for($member, 'author')->create();
+    $assignedElsewhere = Task::factory()->for(Project::factory()->for($otherTeam))->for($member, 'assignee')->create();
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('teams.members.destroy', [$team, $member]));
+
+    expect($assignedInTeam->fresh())
+        ->assignee_id->toBeNull()
+        ->author_id->toBe($member->id)
+        ->and($assignedElsewhere->fresh()->assignee_id)->toBe($member->id);
 });
 
 test('team members cannot be removed by non owners', function () {
