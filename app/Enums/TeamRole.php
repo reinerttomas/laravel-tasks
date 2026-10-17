@@ -9,6 +9,7 @@ enum TeamRole: string
     case Owner = 'owner';
     case Admin = 'admin';
     case Member = 'member';
+    case Viewer = 'viewer';
 
     /**
      * Get the roles that can be assigned to team members (excludes Owner).
@@ -45,8 +46,21 @@ enum TeamRole: string
                 TeamPermission::UpdateTeam,
                 TeamPermission::CreateInvitation,
                 TeamPermission::CancelInvitation,
+                TeamPermission::CreateProject,
+                TeamPermission::UpdateProject,
+                TeamPermission::ArchiveProject,
+                TeamPermission::CreateTask,
+                TeamPermission::UpdateTask,
+                TeamPermission::DeleteTask,
+                TeamPermission::CreateComment,
+                TeamPermission::DeleteComment,
             ],
-            self::Member => [],
+            self::Member => [
+                TeamPermission::CreateTask,
+                TeamPermission::UpdateTask,
+                TeamPermission::CreateComment,
+            ],
+            self::Viewer => [],
         };
     }
 

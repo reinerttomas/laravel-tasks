@@ -15,4 +15,17 @@ enum TeamPermission: string
 
     case CreateInvitation = 'invitation:create';
     case CancelInvitation = 'invitation:cancel';
+
+    case CreateProject = 'project:create';
+    case UpdateProject = 'project:update';
+    /** Also covers restoring an archived project. */
+    case ArchiveProject = 'project:archive';
+    case DeleteProject = 'project:delete';
+
+    case CreateTask = 'task:create';
+    case UpdateTask = 'task:update';
+    case DeleteTask = 'task:delete';
+
+    case CreateComment = 'comment:create';
+    case DeleteComment = 'comment:delete';
 }

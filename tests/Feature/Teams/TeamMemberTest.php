@@ -25,6 +25,29 @@ test('team member roles can be updated by owners', function () {
     expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)->toEqual(TeamRole::Admin->value);
 });
 
+test('team members can be changed to viewers by owners', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $response = $this
+        ->actingAs($owner)
+        ->patch(route('teams.members.update', [$team, $member]), [
+            'role' => 'viewer',
+        ]);
+
+    $response->assertRedirect(route('teams.edit', $team));
+
+    $this->assertDatabaseHas('team_members', [
+        'team_id' => $team->id,
+        'user_id' => $member->id,
+        'role' => 'viewer',
+    ]);
+});
+
 test('team member roles cannot be updated by non owners', function () {
     $owner = User::factory()->create();
     $admin = User::factory()->create();

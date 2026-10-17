@@ -102,7 +102,8 @@ export default function TeamsIndex({ teams }: Props) {
                                             </Tooltip>
                                         ) : null}
 
-                                        {team.role === 'member' ? (
+                                        {team.role === 'member' ||
+                                        team.role === 'viewer' ? (
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button

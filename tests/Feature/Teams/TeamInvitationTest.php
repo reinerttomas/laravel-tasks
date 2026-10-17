@@ -33,6 +33,30 @@ test('team invitations can be created', function () {
     ]);
 });
 
+test('team invitations can be created for viewers', function () {
+    Notification::fake();
+
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $response = $this
+        ->actingAs($owner)
+        ->post(route('teams.invitations.store', $team), [
+            'email' => 'viewer@example.com',
+            'role' => 'viewer',
+        ]);
+
+    $response->assertRedirect(route('teams.edit', $team));
+
+    $this->assertDatabaseHas('team_invitations', [
+        'team_id' => $team->id,
+        'email' => 'viewer@example.com',
+        'role' => 'viewer',
+    ]);
+});
+
 test('invitation email for existing users uses login route', function () {
     $owner = User::factory()->create();
     $invitedUser = User::factory()->create(['email' => 'invited@example.com']);
