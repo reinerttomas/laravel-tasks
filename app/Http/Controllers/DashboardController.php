@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\CountTeamTasksByStatus;
+use App\Actions\GroupOpenTasks;
+use App\Data\TaskRow;
+use App\Models\Team;
 use App\Models\TeamInvitation;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 final class DashboardController
 {
-    public function __invoke(Request $request): Response
+    /**
+     * Display the team's task counts and the user's open tasks, grouped by what needs attention first.
+     */
+    public function __invoke(Request $request, Team $currentTeam, CountTeamTasksByStatus $countTeamTasksByStatus, GroupOpenTasks $groupOpenTasks): Response
     {
         $email = mb_strtolower($request->user()->email);
 
@@ -32,6 +40,11 @@ final class DashboardController
 
         return Inertia::render('dashboard', [
             'pendingInvitations' => $pendingInvitations,
+            'teamTaskCounts' => $countTeamTasksByStatus->handle($currentTeam),
+            'myTasks' => array_map(
+                fn (Collection $tasks): array => $tasks->map(TaskRow::fromTask(...))->all(),
+                $groupOpenTasks->handle($currentTeam, $request->user()),
+            ),
         ]);
     }
 }
