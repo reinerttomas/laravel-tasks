@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\ProjectColor;
 use App\Enums\TaskStatus;
 use App\Enums\TeamRole;
+use App\Models\Comment;
 use App\Models\Membership;
 use App\Models\Project;
 use App\Models\Task;
@@ -317,11 +318,13 @@ describe('update', function () {
 });
 
 describe('destroy', function () {
-    test('owners delete a project with its tasks after typing its identifier', function () {
+    test('owners delete a project with its tasks and comments after typing its identifier', function () {
         $membership = Membership::factory()->role(TeamRole::Owner)->create();
         $project = Project::factory()->for($membership->team)->create(['identifier' => 'WEB']);
         $task = Task::factory()->for($project)->create();
+        $comment = Comment::factory()->for($task)->create();
         $otherTask = Task::factory()->create();
+        $otherComment = Comment::factory()->for($otherTask)->create();
 
         $response = $this
             ->actingAs($membership->user)
@@ -332,7 +335,9 @@ describe('destroy', function () {
         $response->assertRedirect(route('projects.index', ['current_team' => $membership->team]));
         expect($project->fresh())->toBeNull()
             ->and($task->fresh())->toBeNull()
-            ->and($otherTask->fresh())->not->toBeNull();
+            ->and($comment->fresh())->toBeNull()
+            ->and($otherTask->fresh())->not->toBeNull()
+            ->and($otherComment->fresh())->not->toBeNull();
     });
 
     test('the typed identifier must match the project', function () {

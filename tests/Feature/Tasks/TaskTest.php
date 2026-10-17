@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\TeamRole;
+use App\Models\Comment;
 use App\Models\Membership;
 use App\Models\Project;
 use App\Models\Task;
@@ -275,6 +276,22 @@ describe('destroy', function () {
         $response->assertRedirect(route('projects.show', ['current_team' => $membership->team, 'project' => $project]));
         $response->assertInertiaFlash('toast', ['type' => 'success', 'message' => 'WEB-1 deleted.']);
         expect($task->fresh())->toBeNull();
+    });
+
+    test('deleting a task removes its comments', function () {
+        $membership = Membership::factory()->role(TeamRole::Admin)->create();
+        $task = Task::factory()->for(Project::factory()->for($membership->team))->create();
+        $comment = Comment::factory()->for($task)->create();
+        $otherComment = Comment::factory()->create();
+
+        $this
+            ->actingAs($membership->user)
+            ->delete(route('tasks.destroy', ['current_team' => $membership->team, 'task' => $task]))
+            ->assertRedirect();
+
+        expect($task->fresh())->toBeNull()
+            ->and($comment->fresh())->toBeNull()
+            ->and($otherComment->fresh())->not->toBeNull();
     });
 
     test('members cannot delete a task someone else wrote', function () {
