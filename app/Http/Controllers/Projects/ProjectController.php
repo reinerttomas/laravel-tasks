@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Projects;
 
+use App\Actions\CountTaskFacets;
 use App\Actions\CountTasksByStatus;
 use App\Actions\CreateProject;
 use App\Actions\DeleteProject;
+use App\Actions\ListTasks;
 use App\Actions\UpdateProject;
+use App\Data\TaskPage;
 use App\Enums\ProjectColor;
 use App\Http\Requests\Projects\DeleteProjectRequest;
 use App\Http\Requests\Projects\SaveProjectRequest;
+use App\Http\Requests\Tasks\TaskTableRequest;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,12 +53,22 @@ final class ProjectController
     }
 
     /**
-     * Display the project.
+     * Display the project with a filterable, sortable, paginated table of its tasks.
      */
-    public function show(Team $currentTeam, Project $project): Response
+    public function show(TaskTableRequest $request, Team $currentTeam, Project $project, ListTasks $listTasks, CountTaskFacets $countTaskFacets): Response
     {
+        $filters = $request->filters();
+        $tasks = Task::query()->where('tasks.project_id', $project->id);
+
         return Inertia::render('projects/show', [
             'project' => $this->toProps($project),
+            'tasks' => TaskPage::fromPaginator($listTasks->handle($tasks, $filters, $request->integer('page', 1))),
+            'facets' => $countTaskFacets->handle($tasks, $filters, ['status', 'priority', 'assignee']),
+            'filters' => $filters->toProps(),
+            'members' => $currentTeam->members()
+                ->orderBy('name')
+                ->get()
+                ->map(fn (User $member): array => ['id' => $member->id, 'name' => $member->name]),
         ]);
     }
 

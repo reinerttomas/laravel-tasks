@@ -12,4 +12,13 @@ enum TaskPriority: string
     case Medium = 'medium';
     case Low = 'low';
 
+    /**
+     * Get the priorities from the least to the most urgent.
+     *
+     * @return list<self>
+     */
+    public static function byUrgency(): array
+    {
+        return [self::None, self::Low, self::Medium, self::High, self::Urgent];
+    }
 }
