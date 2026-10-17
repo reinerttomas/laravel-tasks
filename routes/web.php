@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
+use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Teams\AcceptTeamInvitationController;
 use App\Http\Controllers\Teams\DeclineTeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
@@ -26,6 +27,10 @@ Route::prefix('{current_team}')
             Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
             Route::post('projects/{project}/archive', [ProjectArchiveController::class, 'store'])->name('projects.archive');
             Route::delete('projects/{project}/archive', [ProjectArchiveController::class, 'destroy'])->name('projects.restore');
+
+            Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('tasks.store');
+            Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+            Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
         });
     });
 

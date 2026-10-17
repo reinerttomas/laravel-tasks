@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\TeamRole;
 use App\Models\Membership;
+use App\Models\Task;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
@@ -89,6 +90,20 @@ test('deleting an account removes the user\'s memberships, passkeys and sent inv
         ->and(TeamInvitation::query()->where('invited_by', $user->id)->exists())->toBeFalse()
         ->and($user->passkeys()->exists())->toBeFalse()
         ->and($team->fresh())->not->toBeNull();
+});
+
+test('deleting an account keeps the team\'s tasks, unassigned and without an author', function () {
+    $user = User::factory()->create();
+    $authored = Task::factory()->for($user, 'author')->create();
+    $assigned = Task::factory()->for($user, 'assignee')->create();
+
+    $this->actingAs($user)
+        ->delete(route('profile.destroy'), ['password' => 'password'])
+        ->assertRedirect(route('home'));
+
+    expect($user->fresh())->toBeNull()
+        ->and($authored->fresh()->author_id)->toBeNull()
+        ->and($assigned->fresh()->assignee_id)->toBeNull();
 });
 
 test('correct password must be provided to delete account', function () {
