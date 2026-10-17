@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\TeamRole;
+use App\Models\Membership;
+use App\Models\Team;
+use App\Models\TeamInvitation;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -67,6 +71,24 @@ test('user can delete their account', function () {
 
     $this->assertGuest();
     expect($user->fresh())->toBeNull();
+});
+
+test('deleting an account removes the user\'s memberships, passkeys and sent invitations', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->passkeys()->create(['name' => 'Laptop', 'credential_id' => 'credential-id', 'credential' => []]);
+    TeamInvitation::factory()->for($team)->create(['invited_by' => $user->id]);
+
+    $this->actingAs($user)
+        ->delete(route('profile.destroy'), ['password' => 'password'])
+        ->assertRedirect(route('home'));
+
+    expect($user->fresh())->toBeNull()
+        ->and(Membership::query()->where('user_id', $user->id)->exists())->toBeFalse()
+        ->and(TeamInvitation::query()->where('invited_by', $user->id)->exists())->toBeFalse()
+        ->and($user->passkeys()->exists())->toBeFalse()
+        ->and($team->fresh())->not->toBeNull();
 });
 
 test('correct password must be provided to delete account', function () {

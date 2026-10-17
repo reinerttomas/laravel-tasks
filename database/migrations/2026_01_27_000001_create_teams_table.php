@@ -26,8 +26,8 @@ return new class extends Migration
 
         Schema::create('team_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Team::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Team::class)->constrained();
+            $table->foreignIdFor(User::class)->constrained();
             $table->string('role');
             $table->timestamps();
 
@@ -37,10 +37,10 @@ return new class extends Migration
         Schema::create('team_invitations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('code', 64)->unique();
-            $table->foreignIdFor(Team::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Team::class)->constrained();
             $table->string('email');
             $table->string('role');
-            $table->foreignIdFor(User::class, 'invited_by')->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class, 'invited_by')->constrained();
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();
