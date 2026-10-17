@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Enums\TaskStatus;
-use App\Models\Task;
 use App\Models\Team;
 
 final readonly class CountTeamTasksByStatus
 {
+    public function __construct(private CountTasksByStatus $countTasksByStatus) {}
+
     /**
      * Count the tasks of the team's active projects per status, with zeros for statuses without tasks.
      *
@@ -17,21 +18,12 @@ final readonly class CountTeamTasksByStatus
      */
     public function handle(Team $team): array
     {
-        $counts = collect(TaskStatus::cases())->mapWithKeys(fn (TaskStatus $status): array => [$status->value => 0])->all();
+        $countsByProject = $this->countTasksByStatus->handle($team->projects()->active()->get(['id']));
 
-        $rows = Task::query()
-            ->toBase()
-            ->whereIn('project_id', $team->projects()->active()->select('id'))
-            ->select('status')
-            ->selectRaw('count(*) as aggregate')
-            ->groupBy('status')
-            ->get();
-
-        foreach ($rows as $row) {
-            /** @var object{status: string, aggregate: int|string} $row */
-            $counts[$row->status] = (int) $row->aggregate;
-        }
-
-        return $counts;
+        return collect(TaskStatus::cases())
+            ->mapWithKeys(fn (TaskStatus $status): array => [
+                $status->value => array_sum(array_column($countsByProject, $status->value)),
+            ])
+            ->all();
     }
 }
