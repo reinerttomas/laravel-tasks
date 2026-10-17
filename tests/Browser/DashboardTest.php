@@ -13,7 +13,7 @@ test('the dashboard greets the member and lists their overdue work', function ()
     $user = User::factory()->create(['name' => 'Jana Nováková']);
     $membership = Membership::factory()->for($user)->role(TeamRole::Member)->create();
     $project = Project::factory()->for($membership->team)->create(['identifier' => 'WEB']);
-    Task::factory()->for($project)->for($user, 'assignee')->create([
+    $task = Task::factory()->for($project)->for($user, 'assignee')->create([
         'title' => 'Fix the login form',
         'status' => TaskStatus::InProgress,
         'due_date' => today()->subDay(),
@@ -27,5 +27,7 @@ test('the dashboard greets the member and lists their overdue work', function ()
         ->assertSeeIn('@section-overdue', 'Fix the login form')
         ->assertSeeIn('@section-overdue', 'WEB-1')
         ->assertSeeIn('@section-up-next', 'No tasks waiting for you.')
+        ->click('@task-link')
+        ->assertPathIs(route('tasks.show', ['current_team' => $membership->team, 'task' => $task], absolute: false))
         ->assertNoJavaScriptErrors();
 });

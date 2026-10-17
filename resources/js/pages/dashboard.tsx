@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import { AlertCircle, CircleDot, ListTodo } from 'lucide-react';
 import { useState } from 'react';
@@ -11,6 +11,7 @@ import { projectColorClass } from '@/lib/project-colors';
 import { formatDay, isOverdue, taskStatus } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import { show } from '@/routes/tasks';
 import type {
     DashboardInvitation,
     TaskCounts,
@@ -163,14 +164,20 @@ function TaskSection({
 }
 
 function TaskLine({ task }: { task: TaskRow }) {
+    const teamSlug = usePage().props.currentTeam?.slug ?? '';
     const overdue = isOverdue(task.dueDate);
 
     return (
         <li className="flex items-center gap-3 px-4 py-3 text-sm">
             <TaskStatusIcon status={task.status} />
             <div className="min-w-0 flex-1">
-                {/* Ticket 06 links the title to the task detail page. */}
-                <p className="truncate font-medium">{task.title}</p>
+                <Link
+                    href={show({ current_team: teamSlug, task: task.id })}
+                    className="block truncate font-medium hover:underline"
+                    data-test="task-link"
+                >
+                    {task.title}
+                </Link>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span
                         className={cn(
