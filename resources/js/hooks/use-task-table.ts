@@ -1,8 +1,19 @@
 import { router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
-import type { TaskFacet, TaskFilters, TaskSortColumn } from '@/types';
+import type {
+    TaskFacet,
+    TaskFilters,
+    TaskSortColumn,
+    TaskStatus,
+} from '@/types';
 
 const SEARCH_DEBOUNCE_MS = 300;
+
+const visitOptions = {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+};
 
 /**
  * Keeps the task table state in the query string: every change visits the page URL again,
@@ -11,7 +22,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 export function useTaskTable(
     url: string,
     filters: TaskFilters,
-    { hasDefaultStatuses = false }: { hasDefaultStatuses?: boolean } = {},
+    { defaultStatuses = [] }: { defaultStatuses?: TaskStatus[] } = {},
 ) {
     const [search, setSearchInput] = useState(filters.search);
     const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -28,15 +39,15 @@ export function useTaskTable(
                 search: next.search || undefined,
                 // A page with default statuses applies them when `status` is missing, so "every status" is sent as `status[]=`.
                 status:
-                    hasDefaultStatuses && next.status.length === 0
+                    defaultStatuses.length > 0 && next.status.length === 0
                         ? ['']
                         : next.status,
                 priority: next.priority,
                 assignee: next.assignee,
                 project: next.project,
-                sort: next.sort === '-number' ? undefined : next.sort,
+                sort: sortParameter(next.sort),
             },
-            { preserveState: true, preserveScroll: true, replace: true },
+            visitOptions,
         );
     };
 
@@ -66,24 +77,17 @@ export function useTaskTable(
     const reset = () => {
         clearTimeout(timeout.current);
         setSearchInput('');
-        visit({
-            search: '',
-            status: [],
-            priority: [],
-            assignee: [],
-            project: [],
-        });
+        router.get(url, { sort: sortParameter(filters.sort) }, visitOptions);
     };
 
     const isFiltered =
         filters.search !== '' ||
-        filters.status.length > 0 ||
+        !sameValues(filters.status, defaultStatuses) ||
         filters.priority.length > 0 ||
         filters.assignee.length > 0 ||
         filters.project.length > 0;
 
-    const goTo = (pageUrl: string) =>
-        router.get(pageUrl, {}, { preserveState: true, preserveScroll: true });
+    const goTo = (pageUrl: string) => router.get(pageUrl, {}, visitOptions);
 
     return {
         search,
@@ -99,3 +103,14 @@ export function useTaskTable(
 }
 
 export type TaskTableState = ReturnType<typeof useTaskTable>;
+
+function sortParameter(sort: string): string | undefined {
+    return sort === '-number' ? undefined : sort;
+}
+
+function sameValues(values: string[], expected: string[]): boolean {
+    return (
+        values.length === expected.length &&
+        expected.every((value) => values.includes(value))
+    );
+}

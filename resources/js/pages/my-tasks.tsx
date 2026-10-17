@@ -4,6 +4,7 @@ import TaskTablePagination from '@/components/task-table-pagination';
 import TaskTableToolbar from '@/components/task-table-toolbar';
 import { useTaskTable } from '@/hooks/use-task-table';
 import { projectColorClass } from '@/lib/project-colors';
+import { openTaskStatuses } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { myTasks } from '@/routes';
 import type { TaskFacetCounts, TaskFilters, TaskPage } from '@/types';
@@ -18,7 +19,7 @@ export default function MyTasks({ tasks, facets, filters }: Props) {
     const { currentTeam, currentTeamProjects } = usePage().props;
 
     const table = useTaskTable(myTasks.url(currentTeam?.slug ?? ''), filters, {
-        hasDefaultStatuses: true,
+        defaultStatuses: openTaskStatuses,
     });
 
     return (

@@ -8,7 +8,7 @@ use App\Models\Membership;
 use App\Models\Project;
 use App\Models\Task;
 
-test('my tasks shows open tasks by default and every status after a reset', function () {
+test('my tasks shows open tasks by default and returns to them after a reset', function () {
     $membership = Membership::factory()->role(TeamRole::Member)->create();
     $project = Project::factory()->for($membership->team)->create(['identifier' => 'WEB']);
     Task::factory()->for($project)->for($membership->user, 'assignee')->create(['title' => 'Fix the login form', 'status' => TaskStatus::Todo]);
@@ -21,10 +21,16 @@ test('my tasks shows open tasks by default and every status after a reset', func
         ->assertSee('Showing 1–1 of 1')
         ->assertSeeIn('@task-row', 'Fix the login form')
         ->assertDontSee('Write release notes')
+        ->assertMissing('@reset-filters');
+
+    $page = visit(route('my-tasks', ['current_team' => $membership->team, 'status' => ['']], absolute: false));
+
+    $page->assertSee('Showing 1–2 of 2')
         ->click('@reset-filters')
-        ->assertSee('Showing 1–2 of 2')
-        ->assertSee('Write release notes')
+        ->assertSee('Showing 1–1 of 1')
+        ->assertDontSee('Write release notes')
+        ->assertMissing('@reset-filters')
         ->click('@sort-title')
-        ->assertSee('Showing 1–2 of 2')
+        ->assertSee('Showing 1–1 of 1')
         ->assertNoJavaScriptErrors();
 });
