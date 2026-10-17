@@ -6,7 +6,6 @@ namespace App\Http\Requests\Tasks;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
-use App\Models\Team;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -21,10 +20,6 @@ final class SaveTaskRequest extends FormRequest
      */
     public function rules(): array
     {
-        $team = $this->route('current_team');
-
-        abort_if(! $team instanceof Team, 404);
-
         $presence = $this->isMethod('POST') ? ['required'] : ['sometimes', 'required'];
 
         return [
@@ -32,25 +27,8 @@ final class SaveTaskRequest extends FormRequest
             'description' => ['sometimes', 'nullable', 'string', 'max:20000'],
             'status' => ['sometimes', Rule::enum(TaskStatus::class)],
             'priority' => ['sometimes', Rule::enum(TaskPriority::class)],
-            'assignee_id' => [
-                'sometimes',
-                'nullable',
-                'string',
-                Rule::exists('team_members', 'user_id')->where('team_id', $team->id),
-            ],
+            'assignee_id' => ['sometimes', 'nullable', 'string'],
             'due_date' => ['sometimes', 'nullable', 'date'],
-        ];
-    }
-
-    /**
-     * Get the custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'assignee_id.exists' => __('The assignee must be a member of this team.'),
         ];
     }
 

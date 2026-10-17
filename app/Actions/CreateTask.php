@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class CreateTask
 {
+    public function __construct(private EnsureAssigneeIsTeamMember $ensureAssigneeIsTeamMember) {}
+
     /**
      * Create a task in the project, numbered with the project's next task number.
      *
@@ -21,6 +23,8 @@ final readonly class CreateTask
      */
     public function handle(Project $project, User $author, string $title, array $attributes = []): Task
     {
+        $this->ensureAssigneeIsTeamMember->handle($project->team, $attributes['assignee_id'] ?? null);
+
         return DB::transaction(function () use ($project, $author, $title, $attributes): Task {
             // Locking the project row serialises concurrent creates, so two tasks never take the same number.
             $number = Project::query()->lockForUpdate()->findOrFail($project->id)->next_task_number;
