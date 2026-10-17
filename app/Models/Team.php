@@ -6,9 +6,13 @@ namespace App\Models;
 
 use App\Concerns\GeneratesUniqueTeamSlugs;
 use App\Enums\TeamRole;
+use App\Policies\TeamPolicy;
 use Carbon\CarbonImmutable;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,18 +21,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property int $id
- * @property string $name
- * @property string $slug
- * @property bool $is_personal
- * @property CarbonImmutable|null $created_at
- * @property CarbonImmutable|null $updated_at
- * @property CarbonImmutable|null $deleted_at
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $slug
+ * @property-read bool $is_personal
+ * @property-read CarbonImmutable|null $created_at
+ * @property-read CarbonImmutable|null $updated_at
+ * @property-read CarbonImmutable|null $deleted_at
  * @property-read Collection<int, TeamInvitation> $invitations
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members
  */
 #[Fillable(['name', 'slug', 'is_personal'])]
+#[RouteKey('slug')]
+#[UseFactory(TeamFactory::class)]
+#[UsePolicy(TeamPolicy::class)]
 final class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -49,7 +56,7 @@ final class Team extends Model
     /**
      * Get the team owner.
      */
-    public function owner(): ?Model
+    public function owner(): ?User
     {
         return $this->members()
             ->wherePivot('role', TeamRole::Owner->value)
@@ -90,29 +97,21 @@ final class Team extends Model
     }
 
     /**
-     * Get the route key for the model.
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-    /**
      * Bootstrap the model and its traits.
      */
     protected static function boot(): void
     {
         parent::boot();
 
-        self::creating(function (Team $team) {
+        self::creating(function (Team $team): void {
             if (empty($team->slug)) {
-                $team->slug = static::generateUniqueTeamSlug($team->name);
+                $team->setAttribute('slug', static::generateUniqueTeamSlug($team->name));
             }
         });
 
-        self::updating(function (Team $team) {
+        self::updating(function (Team $team): void {
             if ($team->isDirty('name')) {
-                $team->slug = static::generateUniqueTeamSlug($team->name, $team->id);
+                $team->setAttribute('slug', static::generateUniqueTeamSlug($team->name, $team->id));
             }
         });
     }

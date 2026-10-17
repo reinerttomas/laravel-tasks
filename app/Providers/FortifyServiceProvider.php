@@ -13,7 +13,6 @@ use App\Http\Responses\TwoFactorLoginResponse;
 use App\Http\Responses\VerifyEmailResponse;
 use App\Models\TeamInvitation;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -133,10 +132,7 @@ final class FortifyServiceProvider extends ServiceProvider
         $invitation = TeamInvitation::query()
             ->with('team')
             ->where('code', $invitationCode)
-            ->whereNull('accepted_at')
-            ->where(fn (Builder $query): Builder => $query
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>=', now()))
+            ->pending()
             ->first();
 
         if (! $invitation) {
