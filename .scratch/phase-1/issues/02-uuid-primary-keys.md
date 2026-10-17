@@ -1,6 +1,6 @@
 # UUID primary keys on every model
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Switch every model to UUIDv7 primary keys (ADR 0003).
@@ -16,6 +16,10 @@ Switch every model to UUIDv7 primary keys (ADR 0003).
 
 ## Acceptance criteria
 
-- [ ] Every table's primary key is `uuid`; new records get UUIDv7 IDs.
-- [ ] All existing tests pass.
-- [ ] `composer test` passes.
+- [x] Every table's primary key is `uuid`; new records get UUIDv7 IDs.
+- [x] All existing tests pass.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/02`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

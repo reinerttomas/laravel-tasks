@@ -1,6 +1,6 @@
 # Viewer role and the permission matrix
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 Extend roles and permissions to the full matrix in `spec.md` (ADR 0002).
@@ -14,6 +14,10 @@ Extend roles and permissions to the full matrix in `spec.md` (ADR 0002).
 
 ## Acceptance criteria
 
-- [ ] A user can be invited as, and changed to, Viewer.
-- [ ] A unit test asserts each role's permission set against the matrix.
-- [ ] `composer test` passes.
+- [x] A user can be invited as, and changed to, Viewer.
+- [x] A unit test asserts each role's permission set against the matrix.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/03`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

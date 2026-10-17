@@ -1,6 +1,6 @@
 # Tasks and the project task list
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 04
 
 Members create and update tasks in a project and browse them in a table.
@@ -32,5 +32,10 @@ Prototype variant **B, data table** won over a Linear-style grouped list (A) and
 
 ## Acceptance criteria
 
-- [ ] Feature tests: numbering is sequential per project and not reused after deletion; Member can delete only own tasks; Viewer cannot create or update; archived project rejects writes; assignee from another team is rejected; cross-team access returns 404; filters and search return the right tasks.
-- [ ] `composer test` passes.
+- [x] Feature tests: numbering is sequential per project and not reused after deletion; Member can delete only own tasks; Viewer cannot create or update; archived project rejects writes; assignee from another team is rejected; cross-team access returns 404; filters and search return the right tasks.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/05`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.
+- 2026-10-17: Deliberate deviation from the spec, approved by the maintainer: `tasks.author_id` (and `comments.author_id`, ticket 07) is nullable. `DeleteUser` unassigns the user's tasks and clears authorship, so the team keeps the work; a missing author shows as "Deleted user".

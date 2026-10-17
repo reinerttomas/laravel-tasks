@@ -1,6 +1,6 @@
 # Unassign tasks when a member leaves the team
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 05
 
 When a member leaves a team or is removed from it, their tasks in that team become unassigned.
@@ -12,5 +12,9 @@ When a member leaves a team or is removed from it, their tasks in that team beco
 
 ## Acceptance criteria
 
-- [ ] Feature tests: leaving and being removed both unassign tasks in that team only; tasks in the user's other teams keep their assignee.
-- [ ] `composer test` passes.
+- [x] Feature tests: leaving and being removed both unassign tasks in that team only; tasks in the user's other teams keep their assignee.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/08`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

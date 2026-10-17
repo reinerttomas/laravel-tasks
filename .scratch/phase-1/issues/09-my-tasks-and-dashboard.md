@@ -1,6 +1,6 @@
 # My tasks and the dashboard
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 05
 
 Give each member an overview of their own work in the current team.
@@ -26,5 +26,9 @@ Two prototype rounds on the `prototype/screens` branch (`resources/js/components
 
 ## Acceptance criteria
 
-- [ ] Feature tests: only my tasks from the current team appear; counts are scoped to the current team and exclude archived projects; a task due yesterday appears only under Overdue.
-- [ ] `composer test` passes.
+- [x] Feature tests: only my tasks from the current team appear; counts are scoped to the current team and exclude archived projects; a task due yesterday appears only under Overdue.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/09`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

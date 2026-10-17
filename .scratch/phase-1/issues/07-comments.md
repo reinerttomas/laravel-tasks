@@ -1,6 +1,6 @@
 # Comments
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06
 
 Members discuss a task in a comment thread on the task detail page.
@@ -15,5 +15,9 @@ Members discuss a task in a comment thread on the task detail page.
 
 ## Acceptance criteria
 
-- [ ] Feature tests cover the matrix for comments (including Admin cannot edit someone else's comment but can delete it), archived project rejecting writes, and deleting a task or project removing its comments.
-- [ ] `composer test` passes.
+- [x] Feature tests cover the matrix for comments (including Admin cannot edit someone else's comment but can delete it), archived project rejecting writes, and deleting a task or project removing its comments.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/07`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

@@ -1,6 +1,6 @@
 # Align the starter kit with project rules
 
-Status: ready-for-agent
+Status: resolved
 
 Bring the starter kit's application code in line with `.ai/rules` before new features build on it. Behaviour must not change; the existing Auth, Settings and Teams tests are the safety net.
 
@@ -14,5 +14,9 @@ Bring the starter kit's application code in line with `.ai/rules` before new fea
 
 ## Acceptance criteria
 
-- [ ] All existing tests pass unchanged (except for namespace imports).
-- [ ] `composer test` passes.
+- [x] All existing tests pass unchanged (except for namespace imports).
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/01`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

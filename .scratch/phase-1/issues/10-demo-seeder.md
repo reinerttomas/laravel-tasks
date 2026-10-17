@@ -1,6 +1,6 @@
 # Demo seeder
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 07
 
 Seed realistic data for trying out roles by hand and, in phase 2, for AI queries.
@@ -13,5 +13,9 @@ Seed realistic data for trying out roles by hand and, in phase 2, for AI queries
 
 ## Acceptance criteria
 
-- [ ] `php artisan migrate:fresh --seed` succeeds and each demo user can log in.
-- [ ] `composer test` passes.
+- [x] `php artisan migrate:fresh --seed` succeeds and each demo user can log in.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/10`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

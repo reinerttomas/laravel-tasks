@@ -1,6 +1,6 @@
 # Task detail page and markdown rendering
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 05
 
 A dedicated page for one task, with its description rendered as markdown.
@@ -27,5 +27,9 @@ Two prototype rounds on the `prototype/screens` branch (`resources/js/components
 
 ## Acceptance criteria
 
-- [ ] Feature tests: page renders for every role; cross-team access returns 404.
-- [ ] `composer test` passes.
+- [x] Feature tests: page renders for every role; cross-team access returns 404.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/06`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.

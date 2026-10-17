@@ -1,6 +1,6 @@
 # Projects
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 03
 
 Members can list projects; Owner and Admin manage them.
@@ -29,5 +29,9 @@ Prototype variant **B, card grid** won over a table with tabs (A) and a list wit
 
 ## Acceptance criteria
 
-- [ ] Feature tests cover each action per role (allowed and forbidden), identifier validation and uniqueness per team, and cross-team access returning 404.
-- [ ] `composer test` passes.
+- [x] Feature tests cover each action per role (allowed and forbidden), identifier validation and uniqueness per team, and cross-team access returning 404.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-17: Implemented on branch `phase-1/04`, merged into `feat/phase-1`. Review fixes in `phase-1/review`.
