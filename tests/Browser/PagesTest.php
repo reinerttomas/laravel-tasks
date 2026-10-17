@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\TeamRole;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 
@@ -23,6 +24,7 @@ test('authenticated pages render without javascript errors', function () {
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
     $project = Project::factory()->for($team)->create();
+    Task::factory()->for($project)->for($user, 'assignee')->create(['due_date' => '2020-01-01']);
 
     $this->actingAs($user);
 

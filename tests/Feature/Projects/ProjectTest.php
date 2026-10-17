@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\ProjectColor;
+use App\Enums\TaskStatus;
 use App\Enums\TeamRole;
 use App\Models\Membership;
 use App\Models\Project;
@@ -27,6 +28,23 @@ describe('index', function () {
             ->has('projects', 1)
             ->where('projects.0.id', $project->id)
             ->where('projects.0.name', 'Web App'),
+        );
+    });
+
+    test('each project card counts its tasks per status', function () {
+        $membership = Membership::factory()->role(TeamRole::Viewer)->create();
+        $project = Project::factory()->for($membership->team)->create(['name' => 'API']);
+        Project::factory()->for($membership->team)->create(['name' => 'Web App']);
+        Task::factory()->for($project)->count(2)->create(['status' => TaskStatus::Todo]);
+        Task::factory()->for($project)->create(['status' => TaskStatus::Done]);
+
+        $response = $this
+            ->actingAs($membership->user)
+            ->get(route('projects.index', ['current_team' => $membership->team]));
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('projects.0.taskCounts', ['backlog' => 0, 'todo' => 2, 'in_progress' => 0, 'done' => 1, 'canceled' => 0])
+            ->where('projects.1.taskCounts', ['backlog' => 0, 'todo' => 0, 'in_progress' => 0, 'done' => 0, 'canceled' => 0]),
         );
     });
 

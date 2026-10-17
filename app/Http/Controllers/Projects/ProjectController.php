@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Projects;
 
+use App\Actions\CountTasksByStatus;
 use App\Actions\CreateProject;
 use App\Actions\DeleteProject;
 use App\Actions\UpdateProject;
@@ -24,17 +25,23 @@ final class ProjectController
     /**
      * Display the team's active or archived projects.
      */
-    public function index(Request $request, Team $currentTeam): Response
+    public function index(Request $request, Team $currentTeam, CountTasksByStatus $countTasksByStatus): Response
     {
         $filter = $request->query('filter') === 'archived' ? 'archived' : 'active';
 
+        $projects = $currentTeam->projects()
+            ->when($filter === 'archived', fn (Builder $query): Builder => $query->archived(), fn (Builder $query): Builder => $query->active())
+            ->orderBy('name')
+            ->get();
+
+        $taskCounts = $countTasksByStatus->handle($projects);
+
         return Inertia::render('projects/index', [
             'filter' => $filter,
-            'projects' => $currentTeam->projects()
-                ->when($filter === 'archived', fn (Builder $query): Builder => $query->archived(), fn (Builder $query): Builder => $query->active())
-                ->orderBy('name')
-                ->get()
-                ->map($this->toProps(...)),
+            'projects' => $projects->map(fn (Project $project): array => [
+                ...$this->toProps($project),
+                'taskCounts' => $taskCounts[$project->id],
+            ]),
             'suggestedColor' => ProjectColor::firstUnused($currentTeam->projects()->active()->pluck('color')),
         ]);
     }

@@ -7,6 +7,7 @@ import DeleteProjectDialog from '@/components/delete-project-dialog';
 import ProjectActionsMenu from '@/components/project-actions-menu';
 import ProjectFormDialog from '@/components/project-form-dialog';
 import ProjectIdentifier from '@/components/project-identifier';
+import TaskStatusBar from '@/components/task-status-bar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,18 +21,28 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/projects';
-import type { Project, ProjectColor } from '@/types';
+import { openTaskStatuses } from '@/lib/tasks';
+import type { Project, ProjectColor, TaskCounts } from '@/types';
 
 type Filter = 'active' | 'archived';
 
+type ProjectCard = Project & { taskCounts: TaskCounts };
+
 type Props = {
     filter: Filter;
-    projects: Project[];
+    projects: ProjectCard[];
     suggestedColor: ProjectColor;
 };
 
 function formatDate(date: string | null): string {
     return date ? format(new Date(date), 'd MMM yyyy') : '';
+}
+
+function countTasks(
+    counts: TaskCounts,
+    statuses = Object.keys(counts) as (keyof TaskCounts)[],
+): number {
+    return statuses.reduce((sum, status) => sum + counts[status], 0);
 }
 
 export default function ProjectsIndex({
@@ -154,14 +165,46 @@ export default function ProjectsIndex({
                                         />
                                     </div>
                                 </CardHeader>
-                                <CardContent className="space-y-2">
-                                    <div className="h-2 rounded-full bg-muted" />
-                                    <p className="text-xs text-muted-foreground">
-                                        No tasks yet
+                                <CardContent className="relative z-10 space-y-2">
+                                    <TaskStatusBar
+                                        counts={project.taskCounts}
+                                    />
+                                    <p
+                                        className="flex gap-3 text-xs text-muted-foreground"
+                                        data-test="task-counts"
+                                    >
+                                        {countTasks(project.taskCounts) ===
+                                        0 ? (
+                                            'No tasks yet'
+                                        ) : (
+                                            <>
+                                                <span>
+                                                    {
+                                                        project.taskCounts
+                                                            .in_progress
+                                                    }{' '}
+                                                    in progress
+                                                </span>
+                                                <span>
+                                                    {project.taskCounts.todo}{' '}
+                                                    todo
+                                                </span>
+                                                <span>
+                                                    {project.taskCounts.backlog}{' '}
+                                                    backlog
+                                                </span>
+                                            </>
+                                        )}
                                     </p>
                                 </CardContent>
                                 <CardFooter className="justify-between text-xs text-muted-foreground">
-                                    <span>0 open tasks</span>
+                                    <span>
+                                        {countTasks(
+                                            project.taskCounts,
+                                            openTaskStatuses,
+                                        )}{' '}
+                                        open tasks
+                                    </span>
                                     {project.archivedAt ? (
                                         <Badge variant="secondary">
                                             Archived{' '}
