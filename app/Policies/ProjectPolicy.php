@@ -24,7 +24,7 @@ final class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $project->archived_at === null
+        return ! $project->is_archived
             && $user->hasTeamPermission($project->team, TeamPermission::UpdateProject);
     }
 
@@ -33,7 +33,7 @@ final class ProjectPolicy
      */
     public function archive(User $user, Project $project): bool
     {
-        return $project->archived_at === null
+        return ! $project->is_archived
             && $user->hasTeamPermission($project->team, TeamPermission::ArchiveProject);
     }
 
@@ -42,7 +42,7 @@ final class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        return $project->archived_at !== null
+        return $project->is_archived
             && $user->hasTeamPermission($project->team, TeamPermission::ArchiveProject);
     }
 

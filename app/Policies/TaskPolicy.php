@@ -16,7 +16,7 @@ final class TaskPolicy
      */
     public function create(User $user, Project $project): bool
     {
-        return $project->archived_at === null
+        return ! $project->is_archived
             && $user->hasTeamPermission($project->team, TeamPermission::CreateTask);
     }
 
@@ -25,7 +25,7 @@ final class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $task->project->archived_at === null
+        return ! $task->project->is_archived
             && $user->hasTeamPermission($task->project->team, TeamPermission::UpdateTask);
     }
 
@@ -34,13 +34,11 @@ final class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        if ($task->project->archived_at !== null) {
+        if ($task->project->is_archived) {
             return false;
         }
 
-        $team = $task->project->team;
-
-        return $user->hasTeamPermission($team, TeamPermission::DeleteTask)
-            || ($task->author_id === $user->id && $user->hasTeamPermission($team, TeamPermission::CreateTask));
+        return $user->hasTeamPermission($task->project->team, TeamPermission::DeleteTask)
+            || ($task->author_id === $user->id && $this->create($user, $task->project));
     }
 }

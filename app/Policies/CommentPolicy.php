@@ -16,7 +16,7 @@ final class CommentPolicy
      */
     public function create(User $user, Task $task): bool
     {
-        return $task->project->archived_at === null
+        return ! $task->project->is_archived
             && $user->hasTeamPermission($task->project->team, TeamPermission::CreateComment);
     }
 
@@ -35,11 +35,11 @@ final class CommentPolicy
     {
         $project = $comment->task->project;
 
-        if ($project->archived_at !== null) {
+        if ($project->is_archived) {
             return false;
         }
 
         return $user->hasTeamPermission($project->team, TeamPermission::DeleteComment)
-            || ($comment->author_id === $user->id && $user->hasTeamPermission($project->team, TeamPermission::CreateComment));
+            || $this->update($user, $comment);
     }
 }
