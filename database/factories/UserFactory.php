@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Actions\SwitchTeam;
 use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\User;
@@ -54,7 +55,7 @@ final class UserFactory extends Factory
                 'role' => TeamRole::Owner->value,
             ]);
 
-            $user->switchTeam($team);
+            app(SwitchTeam::class)->handle($user, $team);
         });
     }
 

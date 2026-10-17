@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Concerns;
 
-use App\Actions\SwitchTeam;
 use App\Data\TeamPermissions;
 use App\Data\UserTeam;
 use App\Enums\TeamPermission;
@@ -77,14 +76,6 @@ trait HasTeams
         return $this->ownedTeams()
             ->where('teams.is_personal', true)
             ->first();
-    }
-
-    /**
-     * Switch to the given team.
-     */
-    public function switchTeam(Team $team): bool
-    {
-        return app(SwitchTeam::class)->handle($this, $team);
     }
 
     /**
