@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { SidebarProject } from '@/types/projects';
 import type { Team, TeamPermissions } from '@/types/teams';
 
 declare module 'react' {
@@ -15,6 +16,7 @@ declare module '@inertiajs/core' {
             sidebarOpen: boolean;
             currentTeam: Team | null;
             currentTeamPermissions: TeamPermissions | null;
+            currentTeamProjects: SidebarProject[];
             teams: Team[];
             [key: string]: unknown;
         };
