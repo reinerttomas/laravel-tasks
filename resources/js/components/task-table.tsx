@@ -1,3 +1,4 @@
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import type { ReactNode } from 'react';
 import TaskPriorityIcon from '@/components/task-priority-icon';
@@ -17,6 +18,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { projectColorClass } from '@/lib/project-colors';
 import { formatDay, isOverdue, taskPriority, taskStatus } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
+import { show } from '@/routes/tasks';
 import type { TaskRow, TaskSortColumn } from '@/types';
 
 type Props = {
@@ -27,6 +29,7 @@ type Props = {
 };
 
 export default function TaskTable({ tasks, table, context }: Props) {
+    const teamSlug = usePage().props.currentTeam?.slug ?? '';
     const header = (
         column: TaskSortColumn,
         label: string,
@@ -74,8 +77,16 @@ export default function TaskTable({ tasks, table, context }: Props) {
                                 {task.reference}
                             </TableCell>
                             <TableCell className="max-w-0 truncate font-medium">
-                                {/* Ticket 06 links the title to the task detail page. */}
-                                {task.title}
+                                <Link
+                                    href={show({
+                                        current_team: teamSlug,
+                                        task: task.id,
+                                    })}
+                                    className="hover:underline"
+                                    data-test="task-link"
+                                >
+                                    {task.title}
+                                </Link>
                             </TableCell>
                             <TableCell>
                                 <Badge variant="outline" className="gap-1.5">

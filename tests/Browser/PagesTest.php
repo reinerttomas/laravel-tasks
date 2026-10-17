@@ -24,7 +24,7 @@ test('authenticated pages render without javascript errors', function () {
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
     $project = Project::factory()->for($team)->create();
-    Task::factory()->for($project)->for($user, 'assignee')->create(['due_date' => '2020-01-01']);
+    $task = Task::factory()->for($project)->for($user, 'assignee')->create(['due_date' => '2020-01-01', 'description' => '**Markdown** with a [link](https://example.com)']);
 
     $this->actingAs($user);
 
@@ -38,6 +38,7 @@ test('authenticated pages render without javascript errors', function () {
         route('projects.index', ['current_team' => $team], absolute: false),
         route('projects.index', ['current_team' => $team, 'filter' => 'archived'], absolute: false),
         route('projects.show', ['current_team' => $team, 'project' => $project], absolute: false),
+        route('tasks.show', ['current_team' => $team, 'task' => $task], absolute: false),
     ]);
 
     $pages->assertNoSmoke();

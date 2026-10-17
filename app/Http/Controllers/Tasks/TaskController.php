@@ -7,16 +7,40 @@ namespace App\Http\Controllers\Tasks;
 use App\Actions\CreateTask;
 use App\Actions\DeleteTask;
 use App\Actions\UpdateTask;
+use App\Data\TaskDetail;
 use App\Http\Requests\Tasks\SaveTaskRequest;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
+use Inertia\Response;
 
 final class TaskController
 {
+    /**
+     * Display the task with what the viewer may change on it.
+     */
+    public function show(Request $request, Team $currentTeam, Task $task): Response
+    {
+        $task->load(['project', 'assignee', 'author']);
+
+        return Inertia::render('tasks/show', [
+            'task' => TaskDetail::fromTask($task),
+            'members' => $currentTeam->members()
+                ->orderBy('name')
+                ->get()
+                ->map(fn (User $member): array => ['id' => $member->id, 'name' => $member->name]),
+            'can' => [
+                'update' => $request->user()?->can('update', $task) ?? false,
+                'delete' => $request->user()?->can('delete', $task) ?? false,
+            ],
+        ]);
+    }
+
     /**
      * Store a newly created task in the project.
      */

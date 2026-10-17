@@ -64,3 +64,25 @@ export type TaskFilters = {
 export type TaskFacetCounts = Partial<
     Record<TaskFacet, Record<string, number>>
 >;
+
+/** A task as shown on its detail page; `author` is null once their account is deleted. */
+export type TaskDetail = {
+    id: string;
+    reference: string;
+    title: string;
+    description: string | null;
+    status: TaskStatus;
+    priority: TaskPriority;
+    project: {
+        id: string;
+        name: string;
+        identifier: string;
+        color: ProjectColor;
+        archivedAt: string | null;
+    };
+    assignee: AssignableMember | null;
+    author: AssignableMember | null;
+    dueDate: string | null;
+    createdAt: string | null;
+    updatedAt: string | null;
+};
