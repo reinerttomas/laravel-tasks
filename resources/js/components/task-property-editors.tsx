@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
-import { CalendarDays, Check, X } from 'lucide-react';
+import { CalendarDays, Check, Pencil, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Markdown from '@/components/markdown';
@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useInitials } from '@/hooks/use-initials';
+import { formatDate } from '@/lib/dates';
 import { isOverdue, taskPriorities, taskStatuses } from '@/lib/tasks';
 import { cn } from '@/lib/utils';
 import { update as updateRoute } from '@/routes/tasks';
@@ -294,7 +295,7 @@ export function DueDatePicker({ task, save, disabled }: EditorProps) {
                     data-test="task-due-date"
                 >
                     <CalendarDays />
-                    {dueDate ? format(dueDate, 'd MMM yyyy') : 'Due date'}
+                    {dueDate ? formatDate(dueDate) : 'Due date'}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -387,44 +388,43 @@ export function DescriptionEditor({ task, save, disabled }: EditorProps) {
         );
     }
 
-    const content = task.description ? (
-        <Markdown>{task.description}</Markdown>
-    ) : (
-        <p className="text-sm text-muted-foreground">
-            {disabled ? 'No description.' : 'Add a description…'}
-        </p>
-    );
+    const startEditing = () => {
+        setDraft(task.description ?? '');
+        setEditing(true);
+    };
 
-    if (disabled) {
-        return <div className="py-2">{content}</div>;
+    if (!task.description) {
+        return disabled ? (
+            <p className="py-2 text-sm text-muted-foreground">
+                No description.
+            </p>
+        ) : (
+            <Button
+                variant="ghost"
+                className="-mx-2 w-full justify-start px-2 font-normal text-muted-foreground"
+                onClick={startEditing}
+                data-test="task-description"
+            >
+                Add a description…
+            </Button>
+        );
     }
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
-            data-test="task-description"
-            onClick={(event) => {
-                // Let links in the rendered markdown open instead of starting an edit.
-                if ((event.target as HTMLElement).closest('a')) {
-                    return;
-                }
-
-                setDraft(task.description ?? '');
-                setEditing(true);
-            }}
-            onKeyDown={(event) => {
-                if (
-                    event.key === 'Enter' &&
-                    event.target === event.currentTarget
-                ) {
-                    setDraft(task.description ?? '');
-                    setEditing(true);
-                }
-            }}
-            className="-mx-2 cursor-text rounded-md p-2 hover:bg-accent/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-        >
-            {content}
+        <div className="relative py-2 pr-9">
+            <Markdown>{task.description}</Markdown>
+            {!disabled && (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-0 size-7 text-muted-foreground"
+                    aria-label="Edit description"
+                    onClick={startEditing}
+                    data-test="task-description"
+                >
+                    <Pencil />
+                </Button>
+            )}
         </div>
     );
 }

@@ -1,5 +1,4 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import ArchiveProjectDialog from '@/components/archive-project-dialog';
@@ -19,6 +18,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { formatDate } from '@/lib/dates';
 import { cn } from '@/lib/utils';
 import { index, show } from '@/routes/projects';
 import { openTaskStatuses } from '@/lib/tasks';
@@ -33,10 +33,6 @@ type Props = {
     projects: ProjectCard[];
     suggestedColor: ProjectColor;
 };
-
-function formatDate(date: string | null): string {
-    return date ? format(new Date(date), 'd MMM yyyy') : '';
-}
 
 function countTasks(
     counts: TaskCounts,

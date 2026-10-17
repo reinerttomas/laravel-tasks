@@ -31,6 +31,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { formatDate } from '@/lib/dates';
 import { taskPriorities, taskStatuses } from '@/lib/tasks';
 import { store } from '@/routes/tasks';
 import type { Project, AssignableMember } from '@/types';
@@ -226,7 +227,7 @@ function CreateTaskForm({
                                         >
                                             <CalendarIcon />
                                             {dueDate ? (
-                                                format(dueDate, 'd MMM yyyy')
+                                                formatDate(dueDate)
                                             ) : (
                                                 <span className="text-muted-foreground">
                                                     No due date

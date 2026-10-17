@@ -5,6 +5,7 @@ import TaskPriorityIcon from '@/components/task-priority-icon';
 import TaskStatusIcon from '@/components/task-status-icon';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -37,9 +38,10 @@ export default function TaskTable({ tasks, table, context }: Props) {
         className?: string,
     ) => (
         <TableHead className={className}>
-            <button
-                type="button"
-                className="inline-flex items-center gap-1 hover:text-foreground"
+            <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-3 h-8"
                 onClick={() => table.toggleSort(column)}
                 data-test={`sort-${column}`}
             >
@@ -51,7 +53,7 @@ export default function TaskTable({ tasks, table, context }: Props) {
                 ) : (
                     <ArrowUp className="size-3.5" />
                 )}
-            </button>
+            </Button>
         </TableHead>
     );
 
