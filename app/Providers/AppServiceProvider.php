@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,15 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->bootDevCommand();
+    }
+
+    private function bootDevCommand(): void
+    {
+        if (! $this->app->environment('local')) {
+            return;
+        }
+
+        DevCommands::except('server');
     }
 }
