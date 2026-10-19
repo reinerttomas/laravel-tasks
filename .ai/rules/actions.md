@@ -21,6 +21,10 @@ A client for an external site or API (e.g. `Imsdb`) lives in app/Services, not i
 
 Resolve action classes through Laravel's container. Inject stable collaborators through the constructor; pass request-time models and validated values to handle(). Controllers, observers, console commands should receive actions through dependency injection where supported.
 
+## Actions enforce domain invariants
+
+Rules that span models (e.g. an assignee must be a member of the task's team) are checked in the Action and fail with a `ValidationException` keyed to the field. A FormRequest may mirror them for early feedback, but the Action is the authority, because MCP tools and console commands call Actions directly.
+
 ## Use CRUD names for resource mutations
 
 Prefer Create{Resource}, Update{Resource}, and Delete{Resource} for resource mutations. Keep a domain-specific verb only when the operation is not naturally CRUD.
