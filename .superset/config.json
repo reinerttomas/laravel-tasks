@@ -1,0 +1,5 @@
+{
+    "setup": ["bash .superset/setup.sh"],
+    "teardown": ["bash .superset/teardown.sh"],
+    "run": ["bun run build && herd open"]
+}
