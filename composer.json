@@ -57,6 +57,13 @@
             "bun install",
             "bun run build"
         ],
+        "setup:worktree": [
+            "@php -r \"file_exists('.env') || copy(dirname(trim(shell_exec('git rev-parse --path-format=absolute --git-common-dir'))).'/.env', '.env');\"",
+            "composer install",
+            "git config core.hooksPath .githooks",
+            "bun install",
+            "bun run build"
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "@php artisan dev"
