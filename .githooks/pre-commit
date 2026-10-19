@@ -1,0 +1,3 @@
+#!/bin/sh
+# Fast formatting and lint gate; the full `composer test` runs in CI.
+exec composer test:lint
