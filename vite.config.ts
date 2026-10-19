@@ -25,6 +25,9 @@ export default defineConfig({
         }),
         tailwindcss(),
         wayfinder({
+            // An unreachable database makes Wayfinder type route keys from the models' @property-read docs, not the local schema.
+            command:
+                'DB_CONNECTION=sqlite DB_DATABASE=/nonexistent php artisan wayfinder:generate',
             formVariants: true,
         }),
     ]),
