@@ -36,6 +36,10 @@ arch('actions receive request data instead of reading it')
     ->expect('App\Actions')
     ->not->toUse(['auth', 'request', 'session']);
 
+arch('dependencies are injected instead of resolved with app()')
+    ->expect('App')
+    ->not->toUse('app');
+
 arch('urls come from named routes')
     ->expect(['url', 'action'])
     ->not->toBeUsed();
