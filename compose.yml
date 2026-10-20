@@ -1,0 +1,122 @@
+# Only what follows from this file's services and volumes. Everything else comes from .env, because `environment` would override it.
+x-app-environment: &app-environment
+    AUTORUN_ENABLED: 'false'
+    DB_CONNECTION: pgsql
+    DB_HOST: postgres
+    DB_PORT: '5432'
+    REDIS_HOST: valkey
+    REDIS_PORT: '6379'
+    QUEUE_CONNECTION: redis
+    CACHE_STORE: redis
+    SESSION_DRIVER: redis
+    INERTIA_SSR_URL: http://ssr:13714
+
+# The image is built and pushed to GHCR, so Dokploy only pulls it.
+x-app: &app
+    image: ghcr.io/reinerttomas/laravel-tasks:${IMAGE_TAG:?IMAGE_TAG must be set in .env}
+    restart: unless-stopped
+    env_file:
+        - .env
+    environment:
+        <<: *app-environment
+    volumes:
+        - storage_private:/var/www/html/storage/app/private
+        - storage_public:/var/www/html/storage/app/public
+
+services:
+    app:
+        <<: *app
+        environment:
+            <<: *app-environment
+            # Migrations, optimize and storage:link run here on start, before Octane boots.
+            AUTORUN_ENABLED: 'true'
+        depends_on:
+            postgres:
+                condition: service_healthy
+            valkey:
+                condition: service_healthy
+            ssr:
+                condition: service_started
+        healthcheck:
+            test: ['CMD', 'healthcheck-octane']
+            start_period: 10s
+
+    horizon:
+        <<: *app
+        command: ['php', '/var/www/html/artisan', 'horizon']
+        stop_signal: SIGTERM
+        depends_on:
+            app:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD', 'healthcheck-horizon']
+            start_period: 10s
+
+    scheduler:
+        <<: *app
+        command: ['php', '/var/www/html/artisan', 'schedule:work']
+        stop_signal: SIGTERM
+        depends_on:
+            app:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
+            start_period: 10s
+
+    ssr:
+        <<: *app
+        command: ['php', '/var/www/html/artisan', 'inertia:start-ssr']
+        stop_signal: SIGTERM
+        environment:
+            <<: *app-environment
+            INERTIA_SSR_URL: http://127.0.0.1:13714
+        volumes: []
+        healthcheck:
+            test: ['CMD', 'php', '/var/www/html/artisan', 'inertia:check-ssr']
+            start_period: 10s
+
+    # No published ports: only the app services on the Compose network reach the database.
+    postgres:
+        image: postgres:18-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:?DB_DATABASE must be set in .env}
+            POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME must be set in .env}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+        volumes:
+            # PostgreSQL 18 keeps its data in a versioned subdirectory of this path.
+            - postgres:/var/lib/postgresql
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    # No published ports, and a password so nothing else on the host can read or enqueue jobs.
+    valkey:
+        image: valkey/valkey:8-alpine
+        restart: unless-stopped
+        command:
+            - valkey-server
+            - --appendonly
+            - 'yes'
+            - --requirepass
+            - ${REDIS_PASSWORD:?REDIS_PASSWORD must be set in .env}
+        environment:
+            # valkey-cli reads the password from here, so the healthcheck authenticates without it on the command line.
+            REDISCLI_AUTH: ${REDIS_PASSWORD}
+        volumes:
+            - valkey:/data
+        healthcheck:
+            test: ['CMD-SHELL', 'valkey-cli ping | grep -q PONG']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+volumes:
+    storage_private:
+    storage_public:
+    postgres:
+    valkey:
