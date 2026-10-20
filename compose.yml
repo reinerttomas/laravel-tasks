@@ -101,15 +101,17 @@ services:
     valkey:
         image: valkey/valkey:8-alpine
         restart: unless-stopped
+        # The password reaches valkey-server as config on stdin, so it never shows in the container's command or process args.
         command:
-            - valkey-server
-            - --appendonly
-            - 'yes'
-            - --requirepass
-            - ${REDIS_PASSWORD:?REDIS_PASSWORD must be set in .env}
+            - sh
+            - -c
+            - |
+                exec docker-entrypoint.sh valkey-server - --appendonly yes <<EOF
+                requirepass $$REDISCLI_AUTH
+                EOF
         environment:
-            # valkey-cli reads the password from here, so the healthcheck authenticates without it on the command line.
-            REDISCLI_AUTH: ${REDIS_PASSWORD}
+            # valkey-cli also reads the password from here, so the healthcheck authenticates without it on the command line.
+            REDISCLI_AUTH: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set in .env}
         volumes:
             - valkey:/data
         healthcheck:
@@ -123,7 +125,7 @@ services:
         restart: unless-stopped
         # Only the token, so the third-party image never sees the app's other secrets.
         environment:
-            NIGHTWATCH_TOKEN: ${NIGHTWATCH_TOKEN:?NIGHTWATCH_TOKEN must be set in .env}
+            NIGHTWATCH_TOKEN: ${NIGHTWATCH_TOKEN}
         healthcheck:
             test: ['CMD', 'php', 'nightwatch-status']
             interval: 30s
