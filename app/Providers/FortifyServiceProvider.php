@@ -12,6 +12,7 @@ use App\Http\Responses\RegisterResponse;
 use App\Http\Responses\TwoFactorLoginResponse;
 use App\Http\Responses\VerifyEmailResponse;
 use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -68,6 +69,7 @@ final class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
             'teamInvitation' => $this->teamInvitation($request),
+            'loginLinkUsers' => $this->loginLinkUsers(),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
@@ -114,6 +116,30 @@ final class FortifyServiceProvider extends ServiceProvider
                 ($credentialId ?: $request->session()->getId()).'|'.$request->ip(),
             );
         });
+    }
+
+    /**
+     * Get the users offered for one-click login, only where spatie/laravel-login-link accepts logins.
+     *
+     * @return list<array{email: string, role: string|null, team: string|null}>
+     */
+    private function loginLinkUsers(): array
+    {
+        if (! $this->app->environment(config('login-link.allowed_environments'))) {
+            return [];
+        }
+
+        return array_values(User::query()
+            ->with('currentTeam')
+            ->oldest()
+            ->limit(5)
+            ->get()
+            ->map(fn (User $user): array => [
+                'email' => $user->email,
+                'role' => $user->currentTeam ? $user->teamRole($user->currentTeam)?->label() : null,
+                'team' => $user->currentTeam?->name,
+            ])
+            ->all());
     }
 
     /**

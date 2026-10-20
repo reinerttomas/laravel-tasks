@@ -1,5 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import LoginLink from '@/components/login-link';
+import type { LoginLinkUser } from '@/components/login-link';
 import PasswordInput from '@/components/password-input';
 import TeamInvitationAlert from '@/components/team-invitation-alert';
 import TextLink from '@/components/text-link';
@@ -18,12 +20,14 @@ type Props = {
     status?: string;
     canResetPassword: boolean;
     teamInvitation?: TeamInvitationContext | null;
+    loginLinkUsers: LoginLinkUser[];
 };
 
 export default function Login({
     status,
     canResetPassword,
     teamInvitation,
+    loginLinkUsers,
 }: Props) {
     return (
         <>
@@ -123,6 +127,8 @@ export default function Login({
                     </>
                 )}
             </Form>
+
+            <LoginLink users={loginLinkUsers} />
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">

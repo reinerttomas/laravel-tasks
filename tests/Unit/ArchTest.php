@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
 arch()->preset()->php();
-// Eloquent scopes and accessors must stay protected, which strict() forbids.
-arch()->preset()->strict()->ignoring('App\Models');
+// Eloquent scopes and accessors, and the overridden spatie/laravel-login-link hooks, must stay protected, which strict() forbids.
+arch()->preset()->strict()->ignoring(['App\Models', 'App\Http\Controllers\Auth\LoginLinkController']);
 arch()->preset()->laravel();
 arch()->preset()->security();
 
