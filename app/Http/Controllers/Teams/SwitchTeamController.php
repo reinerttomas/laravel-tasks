@@ -12,12 +12,12 @@ use Illuminate\Http\Request;
 final class SwitchTeamController
 {
     /**
-     * Switch the user's current team.
+     * Switch the user's current team and land on its dashboard, since the previous page may belong to the old team.
      */
     public function __invoke(Request $request, Team $team, SwitchTeam $switchTeam): RedirectResponse
     {
         abort_unless($switchTeam->handle($request->user(), $team), 403);
 
-        return back();
+        return to_route('dashboard', ['current_team' => $team->slug]);
     }
 }

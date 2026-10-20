@@ -428,7 +428,7 @@ test('users can switch teams', function () {
         ->actingAs($user)
         ->post(route('teams.switch', $team));
 
-    $response->assertRedirect();
+    $response->assertRedirect(route('dashboard', ['current_team' => $team->slug]));
 
     expect($user->fresh()->current_team_id)->toEqual($team->id);
 });
