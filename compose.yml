@@ -10,6 +10,7 @@ x-app-environment: &app-environment
     CACHE_STORE: redis
     SESSION_DRIVER: redis
     INERTIA_SSR_URL: http://ssr:13714
+    NIGHTWATCH_INGEST_URI: nightwatch-agent:2407
 
 # The image is built and pushed to GHCR, so Dokploy only pulls it.
 x-app: &app
@@ -70,6 +71,8 @@ services:
         environment:
             <<: *app-environment
             INERTIA_SSR_URL: http://127.0.0.1:13714
+            # Keeps the inertia:check-ssr healthcheck out of Nightwatch.
+            NIGHTWATCH_ENABLED: 'false'
         volumes: []
         healthcheck:
             test: ['CMD', 'php', '/var/www/html/artisan', 'inertia:check-ssr']
@@ -114,6 +117,19 @@ services:
             interval: 5s
             timeout: 5s
             retries: 10
+
+    nightwatch-agent:
+        image: laravelphp/nightwatch-agent:v1
+        restart: unless-stopped
+        # Only the token, so the third-party image never sees the app's other secrets.
+        environment:
+            NIGHTWATCH_TOKEN: ${NIGHTWATCH_TOKEN:?NIGHTWATCH_TOKEN must be set in .env}
+        healthcheck:
+            test: ['CMD', 'php', 'nightwatch-status']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
 
 volumes:
     storage_private:
