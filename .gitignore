@@ -44,3 +44,7 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+
+**/caddy
+frankenphp
+frankenphp-worker.php
