@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Comments\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Projects\ProjectArchiveController;
 use App\Http\Controllers\Projects\ProjectController;
 use App\Http\Controllers\Tasks\MyTaskController;
@@ -13,7 +14,7 @@ use App\Http\Controllers\Teams\DeclineTeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->middleware('auth')->name('home');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])

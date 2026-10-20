@@ -10,7 +10,6 @@ use App\Models\User;
 
 test('guest pages render without javascript errors', function () {
     $pages = visit([
-        route('home', absolute: false),
         route('login', absolute: false),
         route('register', absolute: false),
         route('password.request', absolute: false),
