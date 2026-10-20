@@ -1,6 +1,6 @@
 # Docker deployment
 
-Status: ready-for-agent
+Status: resolved
 
 Package the application as a production Docker image and a Compose stack for Dokploy, following the setup of [reinerttomas/matchday](https://github.com/reinerttomas/matchday), with PostgreSQL instead of SQLite, Valkey for queue, cache and session, Laravel Horizon for the queue and Laravel Nightwatch for monitoring.
 

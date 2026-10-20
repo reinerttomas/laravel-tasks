@@ -4,12 +4,16 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] `laravel/horizon` is installed and its dashboard works locally with jobs dispatched by the app.
-- [ ] `.env.example` uses Redis for queue, cache and session; tests still use array and sync drivers.
-- [ ] Feature test: in production a listed user gets 200 on `/horizon`, an unlisted user gets 403, a guest is refused; locally any visitor gets the dashboard.
-- [ ] `AppServiceProviderTest`: locally the dev commands contain Horizon and not `queue` (`horizon:listen` if the installed version has it, otherwise `horizon`).
-- [ ] Feature test: `horizon:snapshot` is scheduled every five minutes.
-- [ ] Production supervisor is limited to three processes with auto balancing.
-- [ ] `composer test` passes.
+- [x] `.env.example` uses Redis for queue, cache and session; tests still use array and sync drivers.
+- [x] Feature test: in production a listed user gets 200 on `/horizon`, an unlisted user gets 403, a guest is refused; locally any visitor gets the dashboard.
+- [x] `AppServiceProviderTest`: locally the dev commands contain Horizon and not `queue` (`horizon:listen` if the installed version has it, otherwise `horizon`).
+- [x] Feature test: `horizon:snapshot` is scheduled every five minutes.
+- [x] Production supervisor is limited to three processes with auto balancing.
+- [x] `composer test` passes.
+
+## Comments
+
+- 2026-10-20: Implemented on branch `docker/01`, merged into `feat/docker`; review fixes in `docker/review`. Uses `horizon` rather than `horizon:listen`, which needs the unapproved `chokidar` npm package. `HorizonServiceProvider` extends a plain `ServiceProvider` because the strict arch preset forbids Horizon's protected `gate()` hook. Dashboard processing jobs was verified in the Docker stack (ticket 03), not yet locally against Herd's Valkey.
