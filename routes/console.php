@@ -10,3 +10,5 @@ Schedule::call(function () {
         ->expired()
         ->delete();
 })->daily()->description('Delete expired team invitations');
+
+Schedule::command('horizon:snapshot')->everyFiveMinutes();
