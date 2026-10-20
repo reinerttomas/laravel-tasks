@@ -12,9 +12,10 @@ x-app-environment: &app-environment
     INERTIA_SSR_URL: http://ssr:13714
     NIGHTWATCH_INGEST_URI: nightwatch-agent:2407
 
-# The image is built and pushed to GHCR, so Dokploy only pulls it.
+# The deploy workflow pushes the image and moves `latest` onto it, so Dokploy pulls it on every deploy.
 x-app: &app
-    image: ghcr.io/reinerttomas/laravel-tasks:${IMAGE_TAG:?IMAGE_TAG must be set in .env}
+    image: ghcr.io/reinerttomas/laravel-tasks:latest
+    pull_policy: always
     restart: unless-stopped
     env_file:
         - .env

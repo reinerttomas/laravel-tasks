@@ -1,0 +1,163 @@
+name: deploy
+
+run-name: deploy ${{ github.ref_name }}
+
+# Started by hand: the branch picked in the dispatch UI is built and deployed.
+# Rollback: point `latest` at an earlier image with
+# `docker buildx imagetools create --tag ghcr.io/reinerttomas/laravel-tasks:latest ghcr.io/reinerttomas/laravel-tasks:sha-<commit>`,
+# then redeploy the compose app in Dokploy.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ci:
+    permissions:
+      contents: read
+
+    uses: ./.github/workflows/tests.yml
+
+  image:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      tag: ${{ steps.meta.outputs.version }}
+      digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        env:
+          # Provenance attestations turn the push into an image index, and GHCR
+          # reads the source repository from the index.
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: ghcr.io/reinerttomas/laravel-tasks
+          # Only the commit tag: `latest` moves in the deploy job, right before Dokploy pulls it.
+          flavor: |
+            latest=false
+          tags: |
+            type=sha
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: deploy
+          platforms: linux/amd64
+          # Vite inlines the app name into the bundle at build time, so Dokploy's
+          # .env cannot set it.
+          build-args: |
+            VITE_APP_NAME=Laravel Tasks
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+
+    # A second deploy waits for the running one instead of cancelling it.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      packages: write
+
+    # An explicit bash shell adds pipefail, so a failed registry call fails the step.
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      IMAGE: ghcr.io/reinerttomas/laravel-tasks
+      TAG: ${{ needs.image.outputs.tag }}
+      DIGEST: ${{ needs.image.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # A registry-side retag by digest: no rebuild, no pull, and exactly the image the image job pushed.
+      - name: Move latest to the new image
+        id: latest
+        run: |
+          docker buildx imagetools create --tag "${IMAGE}:latest" "${IMAGE}@${DIGEST}"
+          digest=$(docker buildx imagetools inspect "${IMAGE}:latest" --format '{{json .Manifest}}' | jq --raw-output .digest)
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Dokploy
+        id: deploy
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          DOKPLOY_DEPLOY_TITLE: Deploy ${{ needs.image.outputs.tag }}
+        run: .infrastructure/dokploy-deploy.sh
+
+      - name: Write job summary
+        if: always()
+        env:
+          LATEST_OUTCOME: ${{ steps.latest.outcome }}
+          LATEST_DIGEST: ${{ steps.latest.outputs.digest }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOYMENT_ID: ${{ steps.deploy.outputs.deployment_id }}
+          STATUS: ${{ steps.deploy.outputs.status }}
+        run: |
+          {
+            echo "### Deploy \`${IMAGE}:${TAG}\`"
+            echo
+            if [[ $LATEST_OUTCOME == success ]]; then
+              echo "- \`latest\`: \`${LATEST_DIGEST}\`"
+            elif [[ $LATEST_OUTCOME == failure ]]; then
+              echo "- \`latest\`: not moved, see the step log"
+            else
+              echo "- \`latest\`: not moved"
+            fi
+            if [[ -n $STATUS ]]; then
+              echo "- Dokploy deployment: **${STATUS}**${DEPLOYMENT_ID:+ (\`${DEPLOYMENT_ID}\`)}"
+            elif [[ $DEPLOY_OUTCOME == skipped ]]; then
+              echo "- Dokploy deployment: not started"
+            else
+              echo "- Dokploy deployment: failed before Dokploy reported a status, see the step log"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
