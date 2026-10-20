@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Horizon\Horizon;
@@ -23,7 +22,7 @@ final class HorizonServiceProvider extends ServiceProvider
             strict: true,
         ));
 
-        Horizon::auth(fn (Request $request): bool => $this->app->environment('local')
-            || Gate::check('viewHorizon', [$request->user()]));
+        Horizon::auth(fn (): bool => $this->app->environment('local')
+            || Gate::allows('viewHorizon'));
     }
 }

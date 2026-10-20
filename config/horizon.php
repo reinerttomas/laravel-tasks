@@ -229,6 +229,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
+                // A small VPS shares its cores and memory with Postgres, Valkey and Octane.
                 'maxProcesses' => 3,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
