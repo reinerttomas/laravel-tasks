@@ -31,6 +31,7 @@ final class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        DevCommands::except('server');
+        // except() replaces the list, so repeat the queue exclusion that Horizon registers.
+        DevCommands::except('server', 'queue');
     }
 }

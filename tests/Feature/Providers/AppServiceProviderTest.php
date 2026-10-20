@@ -28,6 +28,16 @@ test('dev command skips the php server locally because herd serves the app', fun
     (new AppServiceProvider(app()))->boot();
 
     expect(devCommandNames())
-        ->not->toContain('server')
-        ->toContain('queue');
+        ->not->toContain('server');
+});
+
+test('dev command runs horizon instead of the plain queue worker locally', function (): void {
+    DevCommands::registerDefaults();
+    app()->detectEnvironment(fn (): string => 'local');
+
+    (new AppServiceProvider(app()))->boot();
+
+    expect(devCommandNames())
+        ->toContain('horizon')
+        ->not->toContain('queue');
 });
